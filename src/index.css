@@ -1,1 +1,110 @@
+@import url("https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
+
+:root {
+  --foreground-rgb: 33, 33, 33;
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 249, 245, 240;
+  --font-bengali: "Hind Siliguri", sans-serif;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+@layer base {
+  body {
+    @apply font-sans text-base;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply tracking-tight;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+.font-bengali {
+  font-family: var(--font-bengali);
+}
+
+/* Animation utilities */
+.fade-in {
+  animation: fadeIn 1s ease-in-out;
+}
+
+.slide-in {
+  animation: slideIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d97706;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b45309;
+}
+
+/* Custom styling for product cards */
+.product-card {
+  @apply relative overflow-hidden rounded-lg transition-all duration-300;
+}
+
+.product-card:hover .product-overlay {
+  @apply opacity-100;
+}
+
+.product-overlay {
+  @apply absolute inset-0 bg-black/30 opacity-0 transition-opacity duration-300 
+           flex items-center justify-center;
+}
+
+@theme {
+  --color-cream: #faf5f0;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-bengali: "Hind Siliguri", sans-serif;
+}
