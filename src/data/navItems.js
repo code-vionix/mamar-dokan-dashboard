@@ -1,0 +1,196 @@
+import {
+  AlertCircle,
+  BarChart3,
+  CreditCard,
+  FileText,
+  Gift,
+  HelpCircle,
+  ImageIcon,
+  LayoutDashboard,
+  LayoutGrid,
+  MessageSquare,
+  Package,
+  Percent,
+  Settings,
+  ShoppingBag,
+  ShoppingCart,
+  Tag,
+  Truck,
+  Users,
+} from "lucide-react";
+
+const navItems = [
+  {
+    title: "ড্যাশবোর্ড",
+    englishTitle: "Dashboard",
+    href: "/admin",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "পণ্য ব্যবস্থাপনা",
+    englishTitle: "Products",
+    href: "/admin/products",
+    icon: Package,
+    children: [
+      {
+        title: "সকল পণ্য",
+        englishTitle: "All Products",
+        href: "/admin/products",
+        icon: Package,
+      },
+      {
+        title: "নতুন পণ্য যোগ করুন",
+        englishTitle: "Add Product",
+        href: "/admin/products/create",
+        icon: Package,
+      },
+      {
+        title: "ক্যাটাগরি",
+        englishTitle: "Categories",
+        href: "/admin/categories",
+        icon: LayoutGrid,
+      },
+      {
+        title: "স্টক ম্যানেজমেন্ট",
+        englishTitle: "Stock Management",
+        href: "/admin/inventory",
+        icon: ShoppingCart,
+      },
+    ],
+  },
+  {
+    title: "অর্ডার ব্যবস্থাপনা",
+    englishTitle: "Orders",
+    href: "/admin/orders",
+    icon: ShoppingBag,
+    children: [
+      {
+        title: "সকল অর্ডার",
+        englishTitle: "All Orders",
+        href: "/admin/orders",
+        icon: ShoppingBag,
+      },
+      {
+        title: "অর্ডার প্রসেসিং",
+        englishTitle: "Order Processing",
+        href: "/admin/orders/processing",
+        icon: Truck,
+      },
+      {
+        title: "রিটার্নস",
+        englishTitle: "Returns",
+        href: "/admin/orders/returns",
+        icon: AlertCircle,
+      },
+    ],
+  },
+  {
+    title: "গ্রাহক ব্যবস্থাপনা",
+    englishTitle: "Customers",
+    href: "/admin/customers",
+    icon: Users,
+  },
+  {
+    title: "এনালিটিক্স",
+    englishTitle: "Analytics",
+    href: "/admin/analytics",
+    icon: BarChart3,
+    children: [
+      {
+        title: "সেলস এনালিটিক্স",
+        englishTitle: "Sales Analytics",
+        href: "/admin/analytics/sales",
+        icon: BarChart3,
+      },
+      {
+        title: "পণ্য পারফরম্যান্স",
+        englishTitle: "Product Performance",
+        href: "/admin/analytics/products",
+        icon: BarChart3,
+      },
+      {
+        title: "গ্রাহক এনালিটিক্স",
+        englishTitle: "Customer Analytics",
+        href: "/admin/analytics/customers",
+        icon: BarChart3,
+      },
+    ],
+  },
+  {
+    title: "মার্কেটিং",
+    englishTitle: "Marketing",
+    href: "/admin/marketing",
+    icon: Tag,
+    children: [
+      {
+        title: "প্রমোশনস",
+        englishTitle: "Promotions",
+        href: "/admin/marketing/promotions",
+        icon: Percent,
+      },
+      {
+        title: "ডিসকাউন্ট",
+        englishTitle: "Discounts",
+        href: "/admin/marketing/discounts",
+        icon: Tag,
+      },
+      {
+        title: "কুপন",
+        englishTitle: "Coupons",
+        href: "/admin/marketing/coupons",
+        icon: Gift,
+      },
+    ],
+  },
+  {
+    title: "কন্টেন্ট",
+    englishTitle: "Content",
+    href: "/admin/content",
+    icon: FileText,
+    children: [
+      {
+        title: "ব্লগ পোস্ট",
+        englishTitle: "Blog Posts",
+        href: "/admin/content/blog",
+        icon: FileText,
+      },
+      {
+        title: "ব্যানার",
+        englishTitle: "Banners",
+        href: "/admin/content/banners",
+        icon: ImageIcon,
+      },
+      {
+        title: "পেইজ ম্যানেজমেন্ট",
+        englishTitle: "Page Management",
+        href: "/admin/content/pages",
+        icon: FileText,
+      },
+    ],
+  },
+  {
+    title: "পেমেন্ট",
+    englishTitle: "Payments",
+    href: "/admin/payments",
+    icon: CreditCard,
+  },
+  {
+    title: "রিভিউ",
+    englishTitle: "Reviews",
+    href: "/admin/reviews",
+    icon: MessageSquare,
+  },
+  {
+    title: "সেটিংস",
+    englishTitle: "Settings",
+    href: "/admin/settings",
+    icon: Settings,
+  },
+  {
+    title: "সাপোর্ট",
+    englishTitle: "Support",
+    href: "/admin/support",
+    icon: HelpCircle,
+  },
+];
+export default navItems;
