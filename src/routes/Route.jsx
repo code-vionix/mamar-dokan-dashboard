@@ -6,6 +6,8 @@ import ProductsPage from "../pages/Products/ProductsPage";
 import CreateProductPage from "../pages/create/CreateProductPage";
 import EditProductPage from "../pages/editProduct/EditProductPage";
 import InventoryPage from "../pages/inventory/InventoryPage";
+import OrderManagement from "../pages/order/allOrder/AllOrder"
+import OrdersProcessingPage from "../pages/order/orderProcessing/OrderProcessing";
 
 function App() {
   return (
@@ -27,7 +29,8 @@ function App() {
         </Route>
 
         {/* Other non-admin routes can go here*/}
-        <Route path="*" element={<div>Page Not Found</div>} />
+        <Route path="/admin/orders" element={<OrderManagement />} />
+        <Route path="/admin/orders/processing" element={<OrdersProcessingPage />} />
       </Routes>
     </Router>
   );
