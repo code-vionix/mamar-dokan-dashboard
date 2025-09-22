@@ -6,8 +6,9 @@ import ProductsPage from "../pages/Products/ProductsPage";
 import CreateProductPage from "../pages/create/CreateProductPage";
 import EditProductPage from "../pages/editProduct/EditProductPage";
 import InventoryPage from "../pages/inventory/InventoryPage";
-import OrderManagement from "../pages/order/allOrder/AllOrder"
+import OrderManagement from "../pages/order/allOrder/AllOrder";
 import OrdersProcessingPage from "../pages/order/orderProcessing/OrderProcessing";
+import SettingsPage from "../pages/setting/Setting";
 
 function App() {
   return (
@@ -26,11 +27,14 @@ function App() {
           />
 
           <Route path="/admin/inventory" element={<InventoryPage />} />
+          {/* Other non-admin routes can go here*/}
+          <Route path="/admin/orders" element={<OrderManagement />} />
+          <Route
+            path="/admin/orders/processing"
+            element={<OrdersProcessingPage />}
+          />
+          <Route path="/admin/settings" element={<SettingsPage />} />
         </Route>
-
-        {/* Other non-admin routes can go here*/}
-        <Route path="/admin/orders" element={<OrderManagement />} />
-        <Route path="/admin/orders/processing" element={<OrdersProcessingPage />} />
       </Routes>
     </Router>
   );
