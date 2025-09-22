@@ -33,6 +33,7 @@ function App() {
         {/* Other non-admin routes can go here*/}
         <Route path="/orders" element={<OrderManagement />} />
         <Route path="/orders/processing" element={<OrdersProcessingPage />} />
+        
       </Routes>
     </Router>
   );
