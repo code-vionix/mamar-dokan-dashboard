@@ -9,6 +9,7 @@ import InventoryPage from "../pages/inventory/InventoryPage";
 import OrderManagement from "../pages/order/allOrder/AllOrder"
 import OrdersProcessingPage from "../pages/order/orderProcessing/OrderProcessing";
 import CategoriesPage from "../pages/categories/CategoriesPgae";
+import SettingsPage from "../pages/setting/Setting";
 
 function App() {
   return (
@@ -31,9 +32,9 @@ function App() {
         </Route>
 
         {/* Other non-admin routes can go here*/}
-        <Route path="/orders" element={<OrderManagement />} />
+        <Route path="/admin/orders" element={<OrderManagement />} />
         <Route path="/orders/processing" element={<OrdersProcessingPage />} />
-        
+        <Route path="/settings" element={<SettingsPage />} />
       </Routes>
     </Router>
   );
