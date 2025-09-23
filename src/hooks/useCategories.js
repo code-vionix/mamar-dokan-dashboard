@@ -17,6 +17,7 @@ export function useCategories() {
         throw new Error("Failed to fetch categories.");
       }
       const data = await response.json();
+
       setCategories(data.data);
     } catch (err) {
       setError("Failed to load category list.");
@@ -34,13 +35,22 @@ export function useCategories() {
   const addCategory = async (categoryData) => {
     setSuccess(null);
     try {
+      const formData = new FormData();
+      formData.append("name", categoryData.name);
+      formData.append("description", categoryData.description);
+      if (categoryData.parentId) {
+        formData.append("parentId", categoryData.parentId);
+      }
+      if (categoryData.image instanceof File) {
+        formData.append("image", categoryData.image);
+      }
+
       const response = await fetch(`${API_URL}/category`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(categoryData),
+
+        body: formData,
       });
+
       if (response.status === 400) {
         setSuccess("Category already exists.");
       }
