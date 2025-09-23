@@ -9,10 +9,9 @@ I developed a layout connection page, the customers page and api connection.
 # project env variables
 
 ```
+1 . VITE_API_URL = http://localhost:8000/api/v1
 
 ```
-
-1 . VITE_API_URL = http://localhost:8000/api/v1
 
 ## Project components tree
 
