@@ -12,7 +12,7 @@ export default function CategoryForm({
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    parentId: null,
+    parentId: "", // Use empty string instead of null for controlled inputs
     image: null,
   });
   const [imagePreview, setImagePreview] = useState(null);
@@ -23,8 +23,8 @@ export default function CategoryForm({
         id: initialData.id,
         name: initialData.name || "",
         description: initialData.description || "",
-        parentId: initialData.parentId || null,
-        image: null, // শুধু নতুন ছবি আপলোড করলে replace হবে
+        parentId: initialData.parentId || "", // Ensure initialData.parentId is not null
+        image: null, // New image will replace
       });
       setImagePreview(initialData.image);
     }
@@ -32,7 +32,8 @@ export default function CategoryForm({
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value || null }));
+    // Corrected line: Always set the value to a string
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleImageUpload = (e) => {
@@ -54,12 +55,21 @@ export default function CategoryForm({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    // Before submitting, convert empty strings to null for the backend if necessary
+    const dataToSubmit = { ...formData };
+    if (dataToSubmit.parentId === "") {
+      dataToSubmit.parentId = null;
+    }
+    onSubmit(dataToSubmit);
   };
 
   const flattenCategories = (cats, prefix = "") => {
     let options = [];
     cats.forEach((cat) => {
+      // Exclude the current category and its children from the parent options
+      if (initialData && cat.id === initialData.id) {
+        return;
+      }
       options.push({ value: cat.id, label: `${prefix}${cat.name}` });
       if (cat.children && cat.children.length > 0) {
         options = options.concat(
@@ -104,7 +114,7 @@ export default function CategoryForm({
           </div>
 
           {/* মূল শ্রেণী */}
-          {/* <div>
+          <div>
             <label
               htmlFor="parentId"
               className="block text-gray-700 font-medium mb-1"
@@ -114,18 +124,18 @@ export default function CategoryForm({
             <select
               id="parentId"
               name="parentId"
-              value={formData.parentId || ""}
+              value={formData.parentId}
               onChange={handleInputChange}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
             >
               <option value="">কোন মূল শ্রেণী নয় (সর্বোচ্চ স্তর)</option>
-              {parentOptions.map(option => (
+              {parentOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
               ))}
             </select>
-          </div> */}
+          </div>
 
           {/* বিবরণ */}
           <div>

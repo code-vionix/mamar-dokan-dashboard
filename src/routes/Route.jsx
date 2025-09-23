@@ -10,6 +10,7 @@ import EditProductPage from "../pages/editProduct/EditProductPage";
 import InventoryPage from "../pages/inventory/InventoryPage";
 import OrderManagement from "../pages/order/allOrder/AllOrder";
 import OrdersProcessingPage from "../pages/order/orderProcessing/OrderProcessing";
+import { productsPath } from "./path";
 
 function App() {
   return (
@@ -19,8 +20,8 @@ function App() {
           The parent route for /admin uses the AdminLayout component.
           It doesn't render any content itself, just the layout.
         */}
-        <Route path="/" element={<Layout />}>
-          <Route path="/" element={<ProductsPage />} />
+        <Route path={productsPath} element={<Layout />}>
+          <Route path={productsPath} element={<ProductsPage />} />
           <Route path="products/create" element={<CreateProductPage />} />
           <Route path="products/categories" element={<CategoriesPage />} />
           <Route

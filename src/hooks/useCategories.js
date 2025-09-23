@@ -6,7 +6,7 @@ export function useCategories() {
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const [success, setSuccess] = useState(null);
   // GET: Fetches all categories
   const fetchCategories = useCallback(async () => {
     setIsLoading(true);
@@ -32,6 +32,7 @@ export function useCategories() {
 
   // POST: Adds a new category
   const addCategory = async (categoryData) => {
+    setSuccess(null);
     try {
       const response = await fetch(`${API_URL}/category`, {
         method: "POST",
@@ -40,15 +41,13 @@ export function useCategories() {
         },
         body: JSON.stringify(categoryData),
       });
-
+      if (response.status === 400) {
+        setSuccess("Category already exists.");
+      }
       if (!response.ok) {
         throw new Error("Failed to add category.");
-      } else if (response.status === 400) {
-        setError("Category already exists.");
       }
 
-      console.log("Adding category:", categoryData);
-      // Re-fetch categories to update the list
       await fetchCategories();
     } catch (err) {
       console.error("Error adding category:", err);
@@ -114,6 +113,7 @@ export function useCategories() {
   };
 
   return {
+    success,
     categories,
     isLoading,
     error,

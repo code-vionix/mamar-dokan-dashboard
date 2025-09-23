@@ -8,13 +8,12 @@ export default function AlertMessage({ success, error }) {
   }
 
   const message = success || error;
-  const isSuccess = !!success;
 
-  const alertClass = isSuccess
+  const alertClass = !error
     ? "bg-green-50 border border-green-200"
     : "bg-red-50 border border-red-200";
-  const textClass = isSuccess ? "text-green-800" : "text-red-800";
-  const icon = isSuccess ? (
+  const textClass = !error ? "text-green-800" : "text-red-800";
+  const icon = !error ? (
     <CheckCircle
       className="text-green-500 mt-0.5 mr-3 flex-shrink-0"
       size={20}

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Loader2, Save } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
 import AlertMessage from "./AlertMessage";
@@ -42,8 +42,9 @@ export default function ProductForm({
   formSuccess,
   setFormSuccess,
   loading,
+  formError,
+  setFormError,
 }) {
-  const [formError, setFormError] = useState(null);
   // console.log(defaultValues);
 
   // Use a ref to store the previous defaultValues for comparison

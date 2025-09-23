@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import LoadingSpinner from "../../Components/Common/LoadingSpinner";
 import ProductForm from "../../Components/Forms/ProductForm";
+import { productsPath } from "../../routes/path";
 
 export default function EditProductPage() {
   const { productId } = useParams();
@@ -10,6 +11,7 @@ export default function EditProductPage() {
   const [error, setError] = useState(null);
   const [formSuccess, setFormSuccess] = useState(null);
   const [editLoading, setEditLoading] = useState(false);
+  const [formError, setFormError] = useState(null);
   const navigate = useNavigate();
   // Function to transform the API response
   const transformApiResponse = (apiResponse) => {
@@ -76,7 +78,55 @@ export default function EditProductPage() {
 
   const handleEditSubmit = async (data) => {
     setEditLoading(true);
+
     try {
+      const newImagesToUpload = data.images.filter(
+        (image) => image instanceof File
+      );
+      const existingImageUrls = data.images.filter(
+        (image) => typeof image === "string"
+      );
+
+      let newImageUrls = [];
+
+      if (newImagesToUpload.length > 0) {
+        const imageFormData = new FormData();
+        newImagesToUpload.forEach((file) => {
+          imageFormData.append("files", file);
+        });
+
+        const imageUploadResponse = await fetch(
+          `${import.meta.env.VITE_API_URL}/products/image`,
+          {
+            method: "POST",
+            body: imageFormData,
+          }
+        );
+
+        if (!imageUploadResponse.ok) {
+          throw new Error("Failed to upload new images.");
+        }
+
+        const uploadResult = await imageUploadResponse.json();
+
+        if (uploadResult && Array.isArray(uploadResult.url)) {
+          newImageUrls = uploadResult.url;
+        } else {
+          console.error(
+            "Image upload API response format is incorrect:",
+            uploadResult
+          );
+          throw new Error("Image upload response is invalid.");
+        }
+      }
+
+      const finalImageUrls = [...existingImageUrls, ...newImageUrls];
+
+      const payload = {
+        ...data,
+        images: finalImageUrls,
+      };
+
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/products/${productId}`,
         {
@@ -84,29 +134,27 @@ export default function EditProductPage() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(data),
+          body: JSON.stringify(payload),
         }
       );
 
       if (!response.ok) {
-        setEditLoading(false);
         throw new Error("Failed to update product.");
       }
 
       const result = await response.json();
-
-      setFormSuccess("পণ্য সফলভাবে যুক্ত/আপডেট হয়েছে!");
-      navigate("/products");
+      setFormSuccess("পণ্য সফলভাবে আপডেট হয়েছে!");
+      navigate(productsPath);
     } catch (error) {
       console.error("Error updating product:", error);
-      setFormSuccess("পণ্য যুক্ত/আপডেট করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+      setFormError("পণ্য আপডেট করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
     } finally {
       setEditLoading(false);
     }
   };
 
   const handleCancel = () => {
-    navigate("/products");
+    navigate(productsPath);
   };
 
   if (loading) {
@@ -125,6 +173,8 @@ export default function EditProductPage() {
       formSuccess={formSuccess}
       setFormSuccess={setFormSuccess}
       loading={editLoading}
+      formError={formError}
+      setFormError={setFormError}
     />
   );
 }

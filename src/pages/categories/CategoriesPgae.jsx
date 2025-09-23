@@ -1,18 +1,15 @@
-
-import React, { useState } from "react"
-import { motion } from "framer-motion"
-import { FolderTree } from "lucide-react"
+import { motion } from "framer-motion";
+import { FolderTree } from "lucide-react";
+import React, { useState } from "react";
 
 // Import Components
 
-import { useCategories } from "../../hooks/useCategories"
-import PageHeader from "../../Components/categories/PageHeader"
-import DeleteConfirmationModal from "../../Components/categories/DeleteConfirmationModal"
-import CategoryList from "../../Components/categories/CategoryList"
-import CategoryForm from "../../Components/categories/CategoryForm"
-import Notification from "../../Components/categories/Notification"
-
-
+import CategoryForm from "../../Components/categories/CategoryForm";
+import CategoryList from "../../Components/categories/CategoryList";
+import DeleteConfirmationModal from "../../Components/categories/DeleteConfirmationModal";
+import Notification from "../../Components/categories/Notification";
+import PageHeader from "../../Components/categories/PageHeader";
+import { useCategories } from "../../hooks/useCategories";
 
 export default function CategoriesPage() {
   const {
@@ -22,77 +19,78 @@ export default function CategoriesPage() {
     fetchCategories,
     addCategory,
     updateCategory,
-    deleteCategory
-  } = useCategories()
+    deleteCategory,
+    success,
+  } = useCategories();
 
   // UI state for managing form and modal visibility
-  const [formMode, setFormMode] = useState("closed") // 'closed', 'add', 'edit'
-  const [selectedCategory, setSelectedCategory] = useState(null)
-  const [categoryToDelete, setCategoryToDelete] = useState(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [notification, setNotification] = useState({ type: "", message: "" })
+  const [formMode, setFormMode] = useState("closed"); // 'closed', 'add', 'edit'
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [categoryToDelete, setCategoryToDelete] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [notification, setNotification] = useState({ type: "", message: "" });
 
   const showNotification = (type, message) => {
-    setNotification({ type, message })
-    setTimeout(() => setNotification({ type: "", message: "" }), 4000)
-  }
+    setNotification({ type, message });
+    setTimeout(() => setNotification({ type: "", message: "" }), 4000);
+  };
 
   // --- FORM HANDLERS ---
   const handleAddNew = (parentId = null) => {
-    setSelectedCategory({ parentId }) // Pre-fill parentId for sub-categories
-    setFormMode("add")
-  }
+    setSelectedCategory({ parentId }); // Pre-fill parentId for sub-categories
+    setFormMode("add");
+  };
 
-  const handleEdit = category => {
-    setSelectedCategory(category)
-    setFormMode("edit")
-  }
+  const handleEdit = (category) => {
+    setSelectedCategory(category);
+    setFormMode("edit");
+  };
 
   const handleCancelForm = () => {
-    setFormMode("closed")
-    setSelectedCategory(null)
-  }
+    setFormMode("closed");
+    setSelectedCategory(null);
+  };
 
-  const handleSubmitForm = async formData => {
+  const handleSubmitForm = async (formData) => {
     if (!formData.name.trim()) {
-      showNotification("error", "শ্রেণীর নাম প্রদান করুন")
-      return
+      showNotification("error", "শ্রেণীর নাম প্রদান করুন");
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       if (formMode === "add") {
-        await addCategory(formData)
-        showNotification("success", "নতুন শ্রেণী সফলভাবে যুক্ত হয়েছে")
+        await addCategory(formData);
+        showNotification("success", "নতুন শ্রেণী সফলভাবে যুক্ত হয়েছে");
       } else {
-        await updateCategory(formData.id, formData)
-        showNotification("success", "শ্রেণী সফলভাবে আপডেট হয়েছে")
+        await updateCategory(formData.id, formData);
+        showNotification("success", "শ্রেণী সফলভাবে আপডেট হয়েছে");
       }
-      handleCancelForm()
+      handleCancelForm();
     } catch (error) {
-      showNotification("error", "শ্রেণী সংরক্ষণ করতে সমস্যা হয়েছে।")
+      showNotification("error", "শ্রেণী সংরক্ষণ করতে সমস্যা হয়েছে।");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   // --- DELETE HANDLERS ---
-  const handleDelete = categoryId => {
-    setCategoryToDelete(categoryId)
-  }
+  const handleDelete = (categoryId) => {
+    setCategoryToDelete(categoryId);
+  };
 
   const handleConfirmDelete = async () => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      await deleteCategory(categoryToDelete)
-      showNotification("success", "শ্রেণী সফলভাবে মুছে ফেলা হয়েছে")
+      await deleteCategory(categoryToDelete);
+      showNotification("success", "শ্রেণী সফলভাবে মুছে ফেলা হয়েছে");
     } catch (error) {
-      showNotification("error", "শ্রেণী মুছতে সমস্যা হয়েছে।")
+      showNotification("error", "শ্রেণী মুছতে সমস্যা হয়েছে।");
     } finally {
-      setCategoryToDelete(null)
-      setIsSubmitting(false)
+      setCategoryToDelete(null);
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <div className="bg-white min-h-screen">
@@ -143,15 +141,20 @@ export default function CategoriesPage() {
           {formMode !== "closed" && (
             <CategoryForm
               key={selectedCategory?.id || "add-form"} // Use key to force re-mount and reset form state
-              initialData={formMode === "edit" ? selectedCategory : { parentId: selectedCategory?.parentId }}
+              initialData={
+                formMode === "edit"
+                  ? selectedCategory
+                  : { parentId: selectedCategory?.parentId }
+              }
               isSubmitting={isSubmitting}
               onSubmit={handleSubmitForm}
               onCancel={handleCancelForm}
               categories={categories}
+              success={success}
             />
           )}
         </div>
       </main>
     </div>
-  )
+  );
 }
