@@ -1,8 +1,6 @@
-import { Plus, Tag, X } from "lucide-react";
+import { Loader2, Plus, Tag, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
-
-const categories = ["প্রিমিয়াম", "ট্র্যাডিশনাল", "স্ট্যান্ডার্ড"];
 
 export default function CategoryTagsSection() {
   const {
@@ -13,6 +11,35 @@ export default function CategoryTagsSection() {
   } = useFormContext();
   const [newTag, setNewTag] = useState("");
   const watchedTags = watch("tags") || [];
+
+  // State to hold the fetched categories and a loading state
+  const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Use useEffect to fetch categories when the component mounts
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setIsLoading(true); // Start loading
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/category`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch categories");
+        }
+        const data = await response.json();
+
+        const categoryNames = data.data.map((category) => category.name);
+        setCategories(categoryNames);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setIsLoading(false); // End loading, regardless of success or failure
+      }
+    };
+
+    fetchCategories();
+  }, []); // The empty dependency array ensures this runs only once on mount
 
   // Register the "tags" field with validation rules.
   useEffect(() => {
@@ -49,31 +76,38 @@ export default function CategoryTagsSection() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label
-            htmlFor="category" // Changed htmlFor to match the new register key
+            htmlFor="category"
             className="block text-gray-700 font-medium mb-2"
           >
             শ্রেণী *
           </label>
-          <select
-            id="category" // Changed id to match the new register key
-            {...register("category", {
-              // Corrected register key from "categoryId" to "category"
-              required: "একটি শ্রেণী নির্বাচন করুন",
-            })}
-            className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
-              errors.category // Corrected error key
-                ? "border-red-500 focus:ring-red-500"
-                : "border-gray-300 focus:ring-amber-500"
-            }`}
-          >
-            <option value="">শ্রেণী নির্বাচন করুন</option>
-            {categories.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-          {errors.category && ( // Corrected error key
+          {isLoading ? (
+            // Loading spinner using lucide-react
+            <div className="flex justify-center items-center h-10 w-full border rounded-md border-gray-300">
+              <Loader2 className="h-5 w-5 animate-spin text-amber-500" />
+            </div>
+          ) : (
+            // Select dropdown with fetched categories
+            <select
+              id="category"
+              {...register("category", {
+                required: "একটি শ্রেণী নির্বাচন করুন",
+              })}
+              className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
+                errors.category
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-amber-500"
+              }`}
+            >
+              <option value="">শ্রেণী নির্বাচন করুন</option>
+              {categories.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          )}
+          {errors.category && (
             <p className="text-red-500 text-sm mt-1">
               {errors.category.message}
             </p>

@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import { Save, Loader2, Upload, X } from "lucide-react"
+import { motion } from "framer-motion";
+import { Loader2, Save, Upload, X } from "lucide-react";
+import React, { useEffect, useState } from "react";
 
 export default function CategoryForm({
   initialData = null,
   isSubmitting,
   onSubmit,
   onCancel,
-  categories = []
+  categories = [],
 }) {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    parentId: null,
-    image: null
-  })
-  const [imagePreview, setImagePreview] = useState(null)
+    parentId: "", // Use empty string instead of null for controlled inputs
+    image: null,
+  });
+  const [imagePreview, setImagePreview] = useState(null);
 
   useEffect(() => {
     if (initialData) {
@@ -23,54 +23,64 @@ export default function CategoryForm({
         id: initialData.id,
         name: initialData.name || "",
         description: initialData.description || "",
-        parentId: initialData.parentId || null,
-        image: null // শুধু নতুন ছবি আপলোড করলে replace হবে
-      })
-      setImagePreview(initialData.image)
+        parentId: initialData.parentId || "", // Ensure initialData.parentId is not null
+        image: null, // New image will replace
+      });
+      setImagePreview(initialData.image);
     }
-  }, [initialData])
+  }, [initialData]);
 
-  const handleInputChange = e => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value || null }))
-  }
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    // Corrected line: Always set the value to a string
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-  const handleImageUpload = e => {
+  const handleImageUpload = (e) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
-      setFormData(prev => ({ ...prev, image: file }))
-      const previewUrl = URL.createObjectURL(file)
-      setImagePreview(previewUrl)
+      const file = e.target.files[0];
+      setFormData((prev) => ({ ...prev, image: file }));
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
     }
-  }
+  };
 
   const handleRemoveImage = () => {
     if (imagePreview && formData.image) {
-      URL.revokeObjectURL(imagePreview)
+      URL.revokeObjectURL(imagePreview);
     }
-    setFormData(prev => ({ ...prev, image: null }))
-    setImagePreview(null)
-  }
+    setFormData((prev) => ({ ...prev, image: null }));
+    setImagePreview(null);
+  };
 
-  const handleSubmit = e => {
-    e.preventDefault()
-    onSubmit(formData)
-  }
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Before submitting, convert empty strings to null for the backend if necessary
+    const dataToSubmit = { ...formData };
+    if (dataToSubmit.parentId === "") {
+      dataToSubmit.parentId = null;
+    }
+    onSubmit(dataToSubmit);
+  };
 
   const flattenCategories = (cats, prefix = "") => {
-    let options = []
-    cats.forEach(cat => {
-      options.push({ value: cat.id, label: `${prefix}${cat.name}` })
+    let options = [];
+    cats.forEach((cat) => {
+      // Exclude the current category and its children from the parent options
+      if (initialData && cat.id === initialData.id) {
+        return;
+      }
+      options.push({ value: cat.id, label: `${prefix}${cat.name}` });
       if (cat.children && cat.children.length > 0) {
         options = options.concat(
           flattenCategories(cat.children, `${prefix}${cat.name} > `)
-        )
+        );
       }
-    })
-    return options
-  }
+    });
+    return options;
+  };
 
-  const parentOptions = flattenCategories(categories)
+  const parentOptions = flattenCategories(categories);
 
   return (
     <motion.div
@@ -114,12 +124,12 @@ export default function CategoryForm({
             <select
               id="parentId"
               name="parentId"
-              value={formData.parentId || ""}
+              value={formData.parentId}
               onChange={handleInputChange}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
             >
               <option value="">কোন মূল শ্রেণী নয় (সর্বোচ্চ স্তর)</option>
-              {parentOptions.map(option => (
+              {parentOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
@@ -216,5 +226,5 @@ export default function CategoryForm({
         </div>
       </form>
     </motion.div>
-  )
+  );
 }

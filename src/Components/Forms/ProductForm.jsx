@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { Save } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import { Loader2, Save } from "lucide-react";
+import React, { useEffect, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
 import AlertMessage from "./AlertMessage";
@@ -39,9 +39,13 @@ export default function ProductForm({
   defaultValues = {},
   onSubmit,
   onCancel,
+  formSuccess,
+  setFormSuccess,
+  loading,
+  formError,
+  setFormError,
 }) {
-  const [formError, setFormError] = useState(null);
-  const [formSuccess, setFormSuccess] = useState(null);
+  // console.log(defaultValues);
 
   // Use a ref to store the previous defaultValues for comparison
   const prevDefaultValuesRef = useRef();
@@ -80,7 +84,7 @@ export default function ProductForm({
     prevDefaultValuesRef.current = defaultValues;
   }, [defaultValues, reset]);
 
-  const onSubmitHandler = async (data) => {
+  const onSubmitHandler = (data) => {
     setFormError(null);
     setFormSuccess(null);
 
@@ -98,14 +102,7 @@ export default function ProductForm({
       setFormError("পণ্যের ট্যাগ সংখ্যা অন্তত ১টি এবং সর্বাধিক ৫টি হতে হবে।");
       return;
     }
-
-    try {
-      await onSubmit(data);
-      setFormSuccess("পণ্য সফলভাবে যুক্ত/আপডেট হয়েছে!");
-      reset();
-    } catch (error) {
-      setFormError("পণ্য যুক্ত/আপডেট করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
-    }
+    onSubmit(data);
   };
 
   const fadeIn = {
@@ -149,13 +146,21 @@ export default function ProductForm({
               </button>
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || loading}
                 className={`px-6 py-2.5 bg-amber-500 text-white rounded-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors flex items-center ${
-                  isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+                  isSubmitting || loading ? "opacity-70 cursor-not-allowed" : ""
                 } cursor-pointer`}
               >
-                <Save size={18} className="mr-2" />
-                {isSubmitting ? "প্রক্রিয়াধীন..." : "সংরক্ষণ করুন"}
+                {isSubmitting || loading ? (
+                  <>
+                    <Loader2 size={18} className="mr-2 animate-spin" />
+                  </>
+                ) : (
+                  <>
+                    <Save size={18} className="mr-2" />
+                    <span>সংরক্ষণ করুন</span>
+                  </>
+                )}
               </button>
             </div>
           </form>

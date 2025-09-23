@@ -1,8 +1,8 @@
 import { ChevronDown, PlusCircle, Search, Trash2 } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { categories, statuses } from "../../data/productsData.js";
+import { statuses } from "../../data/productsData.js";
 
 const ActionsBar = ({
   searchTerm,
@@ -14,6 +14,31 @@ const ActionsBar = ({
   selectedProducts,
   handleDeleteSelectedProducts,
 }) => {
+  const [categories, setCategories] = useState(["সকল"]);
+
+  // Use useEffect to fetch categories when the component mounts
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/category`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch categories");
+        }
+        const data = await response.json();
+
+        const categoryNames = data.data.map((category) => category.name);
+        setCategories(["সকল", ...categoryNames]);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []); // The empty dependency array ensures this runs only once on mount
+
+  // The 'statuses' array can remain a local constant if not fetched from an API
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -72,7 +97,7 @@ const ActionsBar = ({
             <span>রপ্তানি</span>
           </button> */}
           <Link
-            to="/admin/products/create"
+            to="/products/create"
             className="py-2 px-4 text-sm bg-amber-600 hover:bg-amber-700 text-white rounded-md flex items-center"
           >
             <PlusCircle className="h-4 w-4 mr-1" />

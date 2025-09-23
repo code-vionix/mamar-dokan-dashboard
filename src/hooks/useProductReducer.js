@@ -23,10 +23,8 @@ export const useProductReducer = () => {
       );
     }
 
-    // Apply category filter
     if (state.selectedCategory !== "সকল") {
       filteredProducts = filteredProducts.filter(
-        // The new data uses 'categoryId' not 'category' for filtering.
         (product) => product.category === state.selectedCategory
       );
     }
@@ -37,38 +35,17 @@ export const useProductReducer = () => {
         case "সক্রিয়":
           // Filter for products that are in stock
           filteredProducts = filteredProducts.filter(
-            (product) => product.inStock === true
+            (product) => product.status === "IN_STOCK"
           );
           break;
         case "স্টক নেই":
           // Filter for products that are not in stock
           filteredProducts = filteredProducts.filter(
-            (product) => product.inStock === false
+            (product) => product.status === "LOW_STOCK"
           );
-          break;
-        case "ড্রাফট":
-          filteredProducts = filteredProducts.filter(
-            (product) => product.inStock === null
-          );
-          break;
-        default:
-          // No filter is applied if the status is unrecognized
           break;
       }
     }
-
-    // Apply sorting
-    // if (state.sortConfig.key) {
-    //   filteredProducts.sort((a, b) => {
-    //     if (a[state.sortConfig.key] < b[state.sortConfig.key]) {
-    //       return state.sortConfig.direction === "asc" ? -1 : 1;
-    //     }
-    //     if (a[state.sortConfig.key] > b[state.sortConfig.key]) {
-    //       return state.sortConfig.direction === "asc" ? 1 : -1;
-    //     }
-    //     return 0;
-    //   });
-    // }
 
     return filteredProducts;
   };

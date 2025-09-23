@@ -53,7 +53,6 @@ export const productReducer = (state, action) => {
       return { ...state, selectedProducts: newSelectedProducts };
     }
     case "DELETE_PRODUCT": {
-      // api call
       const productIdToDelete = action.payload;
       const updatedProducts = state.products.filter(
         (product) => product.id !== productIdToDelete

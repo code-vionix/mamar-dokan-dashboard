@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { ProductContext } from "../context/ProductContext.jsx";
-import productsMockData from "../data/productsData.js";
 import { useProductReducer } from "../hooks/useProductReducer.js";
 
 /**
@@ -13,10 +12,25 @@ export const ProductProvider = ({ children }) => {
 
   // Simulate an API call to fetch products on component mount.
   useEffect(() => {
-    setTimeout(() => {
-      dispatch({ type: "SET_PRODUCTS", payload: productsMockData });
-    }, 1000);
-  }, [dispatch]);
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/products`
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        dispatch({ type: "SET_PRODUCTS", payload: data.data });
+      } catch (error) {
+        dispatch({ type: "SET_PRODUCTS", payload: [] });
+        console.error("Error fetching products:", error);
+      }
+    };
+
+    fetchProducts();
+  }, [dispatch]); // The dependency array ensures this effect runs when the component mounts
 
   // Derive new state based on the current state.
   const sortedAndFilteredProducts = getSortedAndFilteredProducts();

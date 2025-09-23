@@ -37,7 +37,7 @@ export default function Header({ toggleSidebar }) {
             <Menu size={20} />
           </button>
           <div className="ml-4 hidden sm:flex items-center text-sm">
-            <Link to="/admin" className="text-gray-500 hover:text-amber-600">
+            <Link to="/" className="text-gray-500 hover:text-amber-600">
               <Home size={16} />
             </Link>
             <ChevronRight size={16} className="mx-1 text-gray-400" />
