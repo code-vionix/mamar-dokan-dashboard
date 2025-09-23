@@ -1,22 +1,22 @@
-import React, { useState } from "react"
 import {
-  ChevronRight,
   ChevronDown,
+  ChevronRight,
+  FolderPlus,
+  FolderTree,
   Pencil,
   Trash2,
-  FolderPlus,
-  FolderTree
-} from "lucide-react"
+} from "lucide-react";
+import React, { useState } from "react";
 
 export default function CategoryItem({
   category,
   level,
   onAddSubCategory,
   onEdit,
-  onDelete
+  onDelete,
 }) {
-  const [isExpanded, setIsExpanded] = useState(level < 1) // শীর্ষ লেভেল ডিফল্ট এক্সপ্যান্ড
-  const hasChildren = category.children && category.children.length > 0
+  const [isExpanded, setIsExpanded] = useState(level < 1); // শীর্ষ লেভেল ডিফল্ট এক্সপ্যান্ড
+  const hasChildren = category.children && category.children.length > 0;
 
   return (
     <div className={`mb-1 ${level > 0 ? "ml-6" : ""}`}>
@@ -98,7 +98,7 @@ export default function CategoryItem({
       {/* Recursive children */}
       {isExpanded && hasChildren && (
         <div className="mt-1 border-l-2 border-amber-200">
-          {category.children.map(child => (
+          {category.children.map((child) => (
             <CategoryItem
               key={child.id}
               category={child}
@@ -111,5 +111,5 @@ export default function CategoryItem({
         </div>
       )}
     </div>
-  )
+  );
 }

@@ -1,41 +1,29 @@
 import {
-  AlertCircle,
-  BarChart3,
-  CreditCard,
-  FileText,
-  Gift,
-  HelpCircle,
-  ImageIcon,
-  LayoutDashboard,
   LayoutGrid,
-  MessageSquare,
   Package,
-  Percent,
-  Settings,
   ShoppingBag,
   ShoppingCart,
-  Tag,
   Truck,
   Users,
 } from "lucide-react";
 
 const navItems = [
-  {
-    title: "ড্যাশবোর্ড",
-    englishTitle: "Dashboard",
-    href: "/",
-    icon: LayoutDashboard,
-  },
+  // {
+  //   title: "ড্যাশবোর্ড",
+  //   englishTitle: "Dashboard",
+  //   href: "/",
+  //   icon: LayoutDashboard,
+  // },
   {
     title: "পণ্য ব্যবস্থাপনা",
     englishTitle: "Products",
-    href: "/products",
+    href: "/",
     icon: Package,
     children: [
       {
         title: "সকল পণ্য",
         englishTitle: "All Products",
-        href: "/products",
+        href: "/",
         icon: Package,
       },
       {
@@ -76,12 +64,12 @@ const navItems = [
         href: "/orders/processing",
         icon: Truck,
       },
-      {
-        title: "রিটার্নস",
-        englishTitle: "Returns",
-        href: "/orders/returns",
-        icon: AlertCircle,
-      },
+      // {
+      //   title: "রিটার্নস",
+      //   englishTitle: "Returns",
+      //   href: "/orders/returns",
+      //   icon: AlertCircle,
+      // },
     ],
   },
   {
@@ -90,107 +78,107 @@ const navItems = [
     href: "/customers",
     icon: Users,
   },
-  {
-    title: "এনালিটিক্স",
-    englishTitle: "Analytics",
-    href: "/analytics",
-    icon: BarChart3,
-    children: [
-      {
-        title: "সেলস এনালিটিক্স",
-        englishTitle: "Sales Analytics",
-        href: "/analytics/sales",
-        icon: BarChart3,
-      },
-      {
-        title: "পণ্য পারফরম্যান্স",
-        englishTitle: "Product Performance",
-        href: "/analytics/products",
-        icon: BarChart3,
-      },
-      {
-        title: "গ্রাহক এনালিটিক্স",
-        englishTitle: "Customer Analytics",
-        href: "/analytics/customers",
-        icon: BarChart3,
-      },
-    ],
-  },
-  {
-    title: "মার্কেটিং",
-    englishTitle: "Marketing",
-    href: "/marketing",
-    icon: Tag,
-    children: [
-      {
-        title: "প্রমোশনস",
-        englishTitle: "Promotions",
-        href: "/marketing/promotions",
-        icon: Percent,
-      },
-      {
-        title: "ডিসকাউন্ট",
-        englishTitle: "Discounts",
-        href: "/marketing/discounts",
-        icon: Tag,
-      },
-      {
-        title: "কুপন",
-        englishTitle: "Coupons",
-        href: "/marketing/coupons",
-        icon: Gift,
-      },
-    ],
-  },
-  {
-    title: "কন্টেন্ট",
-    englishTitle: "Content",
-    href: "/content",
-    icon: FileText,
-    children: [
-      {
-        title: "ব্লগ পোস্ট",
-        englishTitle: "Blog Posts",
-        href: "/content/blog",
-        icon: FileText,
-      },
-      {
-        title: "ব্যানার",
-        englishTitle: "Banners",
-        href: "/content/banners",
-        icon: ImageIcon,
-      },
-      {
-        title: "পেইজ ম্যানেজমেন্ট",
-        englishTitle: "Page Management",
-        href: "/content/pages",
-        icon: FileText,
-      },
-    ],
-  },
-  {
-    title: "পেমেন্ট",
-    englishTitle: "Payments",
-    href: "/payments",
-    icon: CreditCard,
-  },
-  {
-    title: "রিভিউ",
-    englishTitle: "Reviews",
-    href: "/reviews",
-    icon: MessageSquare,
-  },
-  {
-    title: "সেটিংস",
-    englishTitle: "Settings",
-    href: "/settings",
-    icon: Settings,
-  },
-  {
-    title: "সাপোর্ট",
-    englishTitle: "Support",
-    href: "/support",
-    icon: HelpCircle,
-  },
+  // {
+  //   title: "এনালিটিক্স",
+  //   englishTitle: "Analytics",
+  //   href: "/analytics",
+  //   icon: BarChart3,
+  //   children: [
+  //     {
+  //       title: "সেলস এনালিটিক্স",
+  //       englishTitle: "Sales Analytics",
+  //       href: "/analytics/sales",
+  //       icon: BarChart3,
+  //     },
+  //     {
+  //       title: "পণ্য পারফরম্যান্স",
+  //       englishTitle: "Product Performance",
+  //       href: "/analytics/products",
+  //       icon: BarChart3,
+  //     },
+  //     {
+  //       title: "গ্রাহক এনালিটিক্স",
+  //       englishTitle: "Customer Analytics",
+  //       href: "/analytics/customers",
+  //       icon: BarChart3,
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "মার্কেটিং",
+  //   englishTitle: "Marketing",
+  //   href: "/marketing",
+  //   icon: Tag,
+  //   children: [
+  //     {
+  //       title: "প্রমোশনস",
+  //       englishTitle: "Promotions",
+  //       href: "/marketing/promotions",
+  //       icon: Percent,
+  //     },
+  //     {
+  //       title: "ডিসকাউন্ট",
+  //       englishTitle: "Discounts",
+  //       href: "/marketing/discounts",
+  //       icon: Tag,
+  //     },
+  //     {
+  //       title: "কুপন",
+  //       englishTitle: "Coupons",
+  //       href: "/marketing/coupons",
+  //       icon: Gift,
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "কন্টেন্ট",
+  //   englishTitle: "Content",
+  //   href: "/content",
+  //   icon: FileText,
+  //   children: [
+  //     {
+  //       title: "ব্লগ পোস্ট",
+  //       englishTitle: "Blog Posts",
+  //       href: "/content/blog",
+  //       icon: FileText,
+  //     },
+  //     {
+  //       title: "ব্যানার",
+  //       englishTitle: "Banners",
+  //       href: "/content/banners",
+  //       icon: ImageIcon,
+  //     },
+  //     {
+  //       title: "পেইজ ম্যানেজমেন্ট",
+  //       englishTitle: "Page Management",
+  //       href: "/content/pages",
+  //       icon: FileText,
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "পেমেন্ট",
+  //   englishTitle: "Payments",
+  //   href: "/payments",
+  //   icon: CreditCard,
+  // },
+  // {
+  //   title: "রিভিউ",
+  //   englishTitle: "Reviews",
+  //   href: "/reviews",
+  //   icon: MessageSquare,
+  // },
+  // {
+  //   title: "সেটিংস",
+  //   englishTitle: "Settings",
+  //   href: "/settings",
+  //   icon: Settings,
+  // },
+  // {
+  //   title: "সাপোর্ট",
+  //   englishTitle: "Support",
+  //   href: "/support",
+  //   icon: HelpCircle,
+  // },
 ];
 export default navItems;

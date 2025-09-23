@@ -11,14 +11,12 @@ export const formatPrice = (price) => {
  */
 export const getStatusText = (status) => {
   switch (status) {
-    case true:
+    case "IN_STOCK":
       return "সক্রিয়";
-    case false:
+    case "LOW_STOCK":
       return "স্টক নেই";
-    case null:
-      return "ড্রাফট";
-    default:
-      return status;
+    // case null:
+    //   return "ড্রাফট";
   }
 };
 
@@ -27,12 +25,12 @@ export const getStatusText = (status) => {
  */
 export const getStatusBg = (status) => {
   switch (status) {
-    case true:
+    case "IN_STOCK":
       return "bg-green-100 text-green-800";
-    case false:
+    case "LOW_STOCK":
       return "bg-red-100 text-red-800";
-    case null:
-      return "bg-gray-100 text-gray-800";
+    // case null:
+    //   return "bg-gray-100 text-gray-800";
   }
 };
 

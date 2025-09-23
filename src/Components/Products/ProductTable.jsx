@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Box, Edit, Eye, Trash2 } from "lucide-react";
+import { Box, Edit, Loader2, Trash2 } from "lucide-react";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -33,6 +33,7 @@ const ProductTable = ({
   handleToggleSelect,
   handleDeleteProducts,
   pageName,
+  deletingId,
 }) => {
   /* sate manegment start */
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -145,7 +146,7 @@ const ProductTable = ({
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10 relative">
                         <img
-                          src={product.image}
+                          src={product?.images[0]?.url}
                           alt={product.name}
                           className="rounded"
                           style={{
@@ -160,7 +161,7 @@ const ProductTable = ({
                           {product.name}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {product.id}
+                          {product.id.substring(0, 12)}
                         </div>
                       </div>
                     </div>
@@ -180,11 +181,11 @@ const ProductTable = ({
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {product.quantity > 5 ? (
-                      <span>{product.quantity} পিস</span>
-                    ) : product.quantity > 0 ? (
+                    {product.inventoryQuantity > 5 ? (
+                      <span>{product.inventoryQuantity} পিস</span>
+                    ) : product.inventoryQuantity > 0 ? (
                       <span className="text-orange-600 font-medium">
-                        {product.quantity} পিস
+                        {product.inventoryQuantity} পিস
                       </span>
                     ) : (
                       <span className="text-red-600 font-medium">স্টক নেই</span>
@@ -193,32 +194,37 @@ const ProductTable = ({
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBg(
-                        product.inStock
+                        product.status
                       )}`}
                     >
-                      {getStatusText(product.inStock)}
+                      {getStatusText(product.status)}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     {pageName !== "inventory" ? (
                       <div className="flex items-center justify-end space-x-2">
                         <Link
-                          to={`/admin/products/${product.id}/edit`}
+                          to={`/products/${product.id}/edit`}
                           className="text-amber-600 hover:text-amber-900"
                         >
                           <Edit className="h-5 w-5" />
                         </Link>
-                        <Link
-                          to={`/admin/products/${product.id}`}
+                        {/*   <Link
+                          to={`/products/${product.id}`}
                           className="text-blue-600 hover:text-blue-900 cursor-pointer"
                         >
                           <Eye className="h-5 w-5" />
-                        </Link>
+                        </Link> */}
                         <button
                           className="text-red-600 hover:text-red-900 cursor-pointer"
                           onClick={() => handleDeleteProducts(product.id)}
+                          disabled={deletingId === product.id}
                         >
-                          <Trash2 className="h-5 w-5" />
+                          {deletingId === product.id ? (
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-5 w-5" />
+                          )}
                         </button>
                       </div>
                     ) : (

@@ -1,4 +1,5 @@
 // import React, { useEffect } from "react";
+import { useState } from "react";
 import { useProduct } from "../../hooks/useProduct.js";
 import LoadingSpinner from "../Common/LoadingSpinner.jsx";
 import Pagination from "../Common/Pagination.jsx";
@@ -23,7 +24,7 @@ function Products({ pageName }) {
     dispatch,
     itemsPerPage,
   } = useProduct();
-
+  const [deletingId, setDeletingId] = useState(null);
   const indexOfFirstItem = (currentPage - 1) * itemsPerPage;
   const indexOfLastItem = currentPage * itemsPerPage;
   /* all handel function start */
@@ -54,8 +55,28 @@ function Products({ pageName }) {
   const handleDeleteSelectedProducts = () => {
     dispatch({ type: "TOGGLE_SELECT_ALL_DELETE", payload: currentProducts });
   };
-  const handleDeleteProducts = (id) => {
-    dispatch({ type: "DELETE_PRODUCT", payload: id });
+  const handleDeleteProducts = async (id) => {
+    setDeletingId(id);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/products/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete product on the server.");
+      }
+
+      dispatch({ type: "DELETE_PRODUCT", payload: id });
+      setDeletingId(null);
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      setDeletingId(null);
+    } finally {
+      setDeletingId(null);
+    }
   };
   /* all handel function end */
   return (
@@ -93,6 +114,7 @@ function Products({ pageName }) {
             sortConfig={sortConfig}
             handleDeleteProducts={handleDeleteProducts}
             pageName={pageName}
+            deletingId={deletingId}
           />
           <Pagination
             currentPage={currentPage}

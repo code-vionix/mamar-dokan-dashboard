@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import { Save, Loader2, Upload, X } from "lucide-react"
+import { motion } from "framer-motion";
+import { Loader2, Save, Upload, X } from "lucide-react";
+import React, { useEffect, useState } from "react";
 
 export default function CategoryForm({
   initialData = null,
   isSubmitting,
   onSubmit,
   onCancel,
-  categories = []
+  categories = [],
 }) {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     parentId: null,
-    image: null
-  })
-  const [imagePreview, setImagePreview] = useState(null)
+    image: null,
+  });
+  const [imagePreview, setImagePreview] = useState(null);
 
   useEffect(() => {
     if (initialData) {
@@ -24,53 +24,53 @@ export default function CategoryForm({
         name: initialData.name || "",
         description: initialData.description || "",
         parentId: initialData.parentId || null,
-        image: null // শুধু নতুন ছবি আপলোড করলে replace হবে
-      })
-      setImagePreview(initialData.image)
+        image: null, // শুধু নতুন ছবি আপলোড করলে replace হবে
+      });
+      setImagePreview(initialData.image);
     }
-  }, [initialData])
+  }, [initialData]);
 
-  const handleInputChange = e => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value || null }))
-  }
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value || null }));
+  };
 
-  const handleImageUpload = e => {
+  const handleImageUpload = (e) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
-      setFormData(prev => ({ ...prev, image: file }))
-      const previewUrl = URL.createObjectURL(file)
-      setImagePreview(previewUrl)
+      const file = e.target.files[0];
+      setFormData((prev) => ({ ...prev, image: file }));
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
     }
-  }
+  };
 
   const handleRemoveImage = () => {
     if (imagePreview && formData.image) {
-      URL.revokeObjectURL(imagePreview)
+      URL.revokeObjectURL(imagePreview);
     }
-    setFormData(prev => ({ ...prev, image: null }))
-    setImagePreview(null)
-  }
+    setFormData((prev) => ({ ...prev, image: null }));
+    setImagePreview(null);
+  };
 
-  const handleSubmit = e => {
-    e.preventDefault()
-    onSubmit(formData)
-  }
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
 
   const flattenCategories = (cats, prefix = "") => {
-    let options = []
-    cats.forEach(cat => {
-      options.push({ value: cat.id, label: `${prefix}${cat.name}` })
+    let options = [];
+    cats.forEach((cat) => {
+      options.push({ value: cat.id, label: `${prefix}${cat.name}` });
       if (cat.children && cat.children.length > 0) {
         options = options.concat(
           flattenCategories(cat.children, `${prefix}${cat.name} > `)
-        )
+        );
       }
-    })
-    return options
-  }
+    });
+    return options;
+  };
 
-  const parentOptions = flattenCategories(categories)
+  const parentOptions = flattenCategories(categories);
 
   return (
     <motion.div
@@ -104,7 +104,7 @@ export default function CategoryForm({
           </div>
 
           {/* মূল শ্রেণী */}
-          <div>
+          {/* <div>
             <label
               htmlFor="parentId"
               className="block text-gray-700 font-medium mb-1"
@@ -125,7 +125,7 @@ export default function CategoryForm({
                 </option>
               ))}
             </select>
-          </div>
+          </div> */}
 
           {/* বিবরণ */}
           <div>
@@ -216,5 +216,5 @@ export default function CategoryForm({
         </div>
       </form>
     </motion.div>
-  )
+  );
 }

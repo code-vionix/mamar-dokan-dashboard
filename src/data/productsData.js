@@ -204,6 +204,6 @@ const productsMockData = [
   },
 ];
 const categories = ["সকল", "প্রিমিয়াম", "ট্র্যাডিশনাল", "স্ট্যান্ডার্ড"];
-const statuses = ["সকল", "সক্রিয়", "স্টক নেই", "ড্রাফট"];
+const statuses = ["সকল", "সক্রিয়", "স্টক নেই"];
 export { categories, statuses };
 export default productsMockData;
