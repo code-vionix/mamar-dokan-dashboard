@@ -1,14 +1,12 @@
 import { motion } from "framer-motion";
 import { Loader2, Save } from "lucide-react";
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
 import AlertMessage from "./AlertMessage";
 import BasicInfoSection from "./BasicInfoSection";
 import CategoryTagsSection from "./CategoryTagsSection";
-import DetailsSection from "./DetailsSection";
 import ProductImagesSection from "./ProductImagesSection";
-import StockInfoSection from "./StockInfoSection";
 
 // A utility function for deep comparison of two objects
 function deepEqual(obj1, obj2) {
@@ -58,12 +56,6 @@ export default function ProductForm({
       salePrice: "",
       categoryId: "",
       tags: [],
-      material: "",
-      color: "",
-      pattern: "",
-      region: "",
-      quantity: 0,
-      inStock: true,
       images: [],
       ...defaultValues,
     },
@@ -132,8 +124,8 @@ export default function ProductForm({
               <BasicInfoSection />
               <ProductImagesSection />
               <CategoryTagsSection />
-              <DetailsSection />
-              <StockInfoSection />
+              {/* <DetailsSection />
+              <StockInfoSection /> */}
             </motion.div>
 
             <div className="flex justify-end space-x-4 mt-8">

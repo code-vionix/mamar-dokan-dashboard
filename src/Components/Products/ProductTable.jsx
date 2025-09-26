@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Box, Edit, Loader2, Trash2 } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import {
@@ -146,7 +146,7 @@ const ProductTable = ({
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10 relative">
                         <img
-                          src={product?.images[0]?.url}
+                          src={product?.images[0]}
                           alt={product.name}
                           className="rounded"
                           style={{
@@ -174,10 +174,10 @@ const ProductTable = ({
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getCategoryBg(
-                        product.category
+                        product.category.name
                       )}`}
                     >
-                      {product.category}
+                      {product.category.name}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
