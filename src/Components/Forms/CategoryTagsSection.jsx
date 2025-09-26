@@ -1,5 +1,5 @@
 import { Loader2, Plus, Tag, X } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 export default function CategoryTagsSection() {
@@ -29,8 +29,7 @@ export default function CategoryTagsSection() {
         }
         const data = await response.json();
 
-        const categoryNames = data.data.map((category) => category.name);
-        setCategories(categoryNames);
+        setCategories(data.data);
       } catch (error) {
         console.error("Error fetching categories:", error);
       } finally {
@@ -89,8 +88,8 @@ export default function CategoryTagsSection() {
           ) : (
             // Select dropdown with fetched categories
             <select
-              id="category"
-              {...register("category", {
+              id="categoryId"
+              {...register("categoryId", {
                 required: "একটি শ্রেণী নির্বাচন করুন",
               })}
               className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
@@ -101,8 +100,8 @@ export default function CategoryTagsSection() {
             >
               <option value="">শ্রেণী নির্বাচন করুন</option>
               {categories.map((option) => (
-                <option key={option} value={option}>
-                  {option}
+                <option key={option.id} value={option.id}>
+                  {option.name}
                 </option>
               ))}
             </select>
