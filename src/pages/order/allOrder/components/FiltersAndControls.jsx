@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
-import { Download, Printer, RefreshCw, Search } from "lucide-react";
+import { RefreshCw, Search } from "lucide-react";
 import React, { useState } from "react";
 
-function FiltersAndControls({ fadeIn, fetchOrders }) {
+function FiltersAndControls({ fadeIn, fetchOrders, isLoading }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
@@ -15,39 +15,53 @@ function FiltersAndControls({ fadeIn, fetchOrders }) {
       variants={fadeIn}
       className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 mb-6"
     >
+      {/* Header: Title + Actions */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
         <h2 className="text-lg font-medium text-gray-800 mb-4 md:mb-0">
           অর্ডার তালিকা
         </h2>
 
         <div className="flex flex-wrap gap-2">
+          {/* Refresh Button */}
           <button
             onClick={fetchOrders}
-            className="px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 flex items-center text-sm"
+            disabled={isLoading}
+            className={`px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 flex items-center text-sm transition-colors ${
+              isLoading ? "bg-gray-100 cursor-wait" : "hover:bg-gray-50"
+            }`}
             title="রিফ্রেশ করুন"
           >
-            <RefreshCw size={16} className="mr-1" />
+            <RefreshCw
+              size={16}
+              className={`mr-1 ${
+                isLoading ? "animate-spin text-gray-600" : "text-gray-700"
+              }`}
+            />
             রিফ্রেশ
           </button>
 
-          <button
-            className="px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 flex items-center text-sm"
-            title="সব অর্ডার এক্সপোর্ট করুন"
-          >
-            <Download size={16} className="mr-1" />
-            এক্সপোর্ট
-          </button>
-
-          <button
+          {/* Print Button */}
+          {/* <button
+            onClick={handlePrint}
             className="px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 flex items-center text-sm"
             title="প্রিন্ট করুন"
           >
             <Printer size={16} className="mr-1" />
             প্রিন্ট
-          </button>
+          </button> */}
+
+          {/* Future: Export Button */}
+          {/* <button
+            className="px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 flex items-center text-sm"
+            title="সব অর্ডার এক্সপোর্ট করুন"
+          >
+            <Download size={16} className="mr-1" />
+            এক্সপোর্ট
+          </button> */}
         </div>
       </div>
 
+      {/* Filters */}
       <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 gap-4">
         {/* Search */}
         <div className="w-full md:w-auto relative">
@@ -109,7 +123,7 @@ function FiltersAndControls({ fadeIn, fetchOrders }) {
           </div>
 
           {/* Items per page */}
-          <div className="flex items-center">
+          {/* <div className="flex items-center">
             <label
               htmlFor="items-per-page"
               className="mr-2 text-sm text-gray-600"
@@ -127,7 +141,7 @@ function FiltersAndControls({ fadeIn, fetchOrders }) {
               <option value={50}>50</option>
               <option value={100}>100</option>
             </select>
-          </div>
+          </div> */}
         </div>
       </div>
     </motion.div>

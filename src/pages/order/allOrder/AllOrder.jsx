@@ -1,25 +1,23 @@
-import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  RefreshCw,
   CheckCircle,
   Clock,
-  Truck,
   PackageOpen,
+  RefreshCw,
+  Truck,
   XCircle,
-  Printer,
 } from "lucide-react";
-import Header from "./components/Header";
-import OrderStats from "./components/OrderStats";
-import FiltersAndControls from "./components/FiltersAndControls";
-import OrderTable from "./components/OrderTable";
-import { mockOrders } from "./components/Data";
+import React, { useEffect, useState } from "react";
 import ActionButtons from "./components/ActionButtons";
-import UpdateOrderStaus from "./components/UpdateOrderStaus";
-import Notes from "./components/Notes";
-import Products from "./components/Products";
 import CustomerInfo from "./components/CustomerInfo";
+import FiltersAndControls from "./components/FiltersAndControls";
+import Header from "./components/Header";
+import Notes from "./components/Notes";
+import OrderStats from "./components/OrderStats";
 import OrderSummary from "./components/OrderSummary";
+import OrderTable from "./components/OrderTable";
+import Products from "./components/Products";
+import UpdateOrderStaus from "./components/UpdateOrderStaus";
 
 // Order type definition
 
@@ -44,10 +42,36 @@ export default function OrderManagement() {
     fetchOrders();
   }, []);
 
-  console.log(orders);
-  console.log(filteredOrders);
+  // Fetch orders from API
+  const fetchOrders = async () => {
+    setIsLoading(true);
 
-  // Apply filters and sorting when dependencies change
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/order`);
+      const result = await response.json();
+
+      if (result.success) {
+        const ordersData = result.data.map((order) => ({
+          ...order,
+          orderNumber: order.id, // You can map `id` to orderNumber
+          date: order.createdAt, // use createdAt for sorting/filtering
+          customer: order.user, // use nested user object
+          payment: { amount: order.totalAmount }, // for orderStats.totalAmount
+        }));
+
+        setOrders(ordersData);
+        setFilteredOrders(ordersData);
+      } else {
+        console.error("Failed to fetch orders:", result.message);
+      }
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Search handler
   useEffect(() => {
     let result = [...orders];
 
@@ -64,7 +88,9 @@ export default function OrderManagement() {
 
     // Apply status filter
     if (statusFilter !== "all") {
-      result = result.filter((order) => order.status === statusFilter);
+      result = result.filter(
+        (order) => order.status.toLowerCase() === statusFilter.toLowerCase()
+      );
     }
 
     // Apply date filter
@@ -104,7 +130,6 @@ export default function OrderManagement() {
       let valueA = a[sortField];
       let valueB = b[sortField];
 
-      // Handle nested fields
       if (sortField === "date") {
         valueA = new Date(a.date).getTime();
         valueB = new Date(b.date).getTime();
@@ -117,27 +142,6 @@ export default function OrderManagement() {
 
     setFilteredOrders(result);
   }, [orders, searchQuery, statusFilter, dateFilter, sortField, sortDirection]);
-
-  // Fetch orders (mock implementation)
-  const fetchOrders = async () => {
-    setIsLoading(true);
-
-    try {
-      // In a real implementation, fetch from your API
-      // const response = await fetch('/api/admin/orders');
-      // const data = await response.json();
-
-      // For demo purposes, use mock data
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      setOrders(mockOrders);
-      setFilteredOrders(mockOrders);
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   // Handle order status update
   const handleStatusUpdate = async (orderId, newStatus) => {
@@ -181,14 +185,14 @@ export default function OrderManagement() {
   };
 
   // Handle sort change
-  const handleSortChange = (field) => {
-    if (field === sortField) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortField(field);
-      setSortDirection("asc");
-    }
-  };
+  // const handleSortChange = (field) => {
+  //   if (field === sortField) {
+  //     setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+  //   } else {
+  //     setSortField(field);
+  //     setSortDirection("asc");
+  //   }
+  // };
 
   // Handle page change for pagination
   const handlePageChange = (page) => {
@@ -336,7 +340,7 @@ export default function OrderManagement() {
         {/* Orders Table */}
         <OrderTable
           fadeIn={fadeIn}
-          handleSortChange={handleSortChange}
+          // handleSortChange={handleSortChange}
           paginatedOrders={paginatedOrders}
           handleViewOrder={handleViewOrder}
           getPaymentStatusBadge={getPaymentStatusBadge}
@@ -353,7 +357,7 @@ export default function OrderManagement() {
 
       {/* Order Detail Modal */}
       {isDetailModalOpen && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center overflow-y-auto z-50 p-4">
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
