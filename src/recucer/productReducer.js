@@ -62,6 +62,19 @@ export const productReducer = (state, action) => {
         products: updatedProducts,
       };
     }
+    case "UPDATE_STOCK": {
+      const updatedStock = action.payload;
+
+      const updatedProducts = state.products.map((product) =>
+        product.id === updatedStock.productId
+          ? { ...product, stock: [updatedStock] }
+          : product
+      );
+      return {
+        ...state,
+        products: updatedProducts,
+      };
+    }
     default:
       return state;
   }

@@ -3,12 +3,7 @@ import { Box, Edit, Loader2, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import {
-  formatPrice,
-  getCategoryBg,
-  getStatusBg,
-  getStatusText,
-} from "../../utils/productUtils.js";
+import { formatPrice, getCategoryBg } from "../../utils/productUtils.js";
 import StockModal from "../Modal/StockModal.jsx";
 /* motion variants start */
 const containerVariants = {
@@ -113,12 +108,6 @@ const ProductTable = ({
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  স্ট্যাটাস
-                </th>
-                <th
-                  scope="col"
                   className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   অ্যাকশন
@@ -181,24 +170,15 @@ const ProductTable = ({
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {product.inventoryQuantity > 5 ? (
-                      <span>{product.inventoryQuantity} পিস</span>
-                    ) : product.inventoryQuantity > 0 ? (
+                    {product.stock?.[0]?.quantity > 5 ? (
+                      <span>{product.stock?.[0]?.quantity} পিস</span>
+                    ) : product.stock?.[0]?.quantity > 0 ? (
                       <span className="text-orange-600 font-medium">
-                        {product.inventoryQuantity} পিস
+                        {product.stock?.[0]?.quantity} পিস
                       </span>
                     ) : (
                       <span className="text-red-600 font-medium">স্টক নেই</span>
                     )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBg(
-                        product.status
-                      )}`}
-                    >
-                      {getStatusText(product.status)}
-                    </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     {pageName !== "inventory" ? (
