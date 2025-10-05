@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
-import React from "react";
+import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { useProduct } from "../../hooks/useProduct";
 import StockInfoSection from "../Forms/StockInfoSection";
 /* variant start */
 const modalVariants = {
@@ -28,19 +29,44 @@ const modalVariants = {
 };
 /* variant end */
 export default function StockModal({ product, onClose }) {
+  const [loading, setLoading] = useState(false);
   const methods = useForm({
     defaultValues: {
       // Set the initial value to the existing product quantity
-      quantity: product?.quantity || 0,
-      inStock: product?.inStock || false,
+      quantity: product?.stock?.[0]?.quantity || 0,
     },
   });
+  const { dispatch } = useProduct();
 
-  const onSubmit = (data) => {
-    //  api call
-    console.log(data);
+  const onSubmit = async (data) => {
+    try {
+      setLoading(true);
+      // Send a POST request to add stock
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/stock/${product.id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ quantity: data.quantity }),
+        }
+      );
 
-    onClose();
+      if (!response.ok) {
+        throw new Error("Failed to add stock");
+      }
+
+      const updatedProduct = await response.json();
+
+      dispatch({ type: "UPDATE_STOCK", payload: updatedProduct });
+
+      onClose();
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -82,6 +108,7 @@ export default function StockModal({ product, onClose }) {
                 <button
                   className="bg-amber-500 text-white font-bold uppercase text-sm px-6 py-3 rounded shadow hover:bg-amber-600 outline-none focus:outline-none cursor-pointer"
                   type="submit"
+                  disabled={loading}
                 >
                   যোগ করুন
                 </button>
