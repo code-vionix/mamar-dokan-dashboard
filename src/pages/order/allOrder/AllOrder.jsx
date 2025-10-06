@@ -18,52 +18,80 @@ import OrderSummary from "./components/OrderSummary";
 import OrderTable from "./components/OrderTable";
 import Products from "./components/Products";
 import UpdateOrderStaus from "./components/UpdateOrderStaus";
-
-// Order type definition
+import UpdatePaymentStatus from "./components/UpdatePaymentStatus";
 
 export default function OrderManagement() {
-  // State variables
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
+
+  // filter / control states
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
-  const [sortField, setSortField] = useState("date");
-  const [sortDirection, setSortDirection] = useState("desc");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+
   const [isLoading, setIsLoading] = useState(true);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [statusUpdateLoading, setStatusUpdateLoading] = useState(false);
+  const [paymentStatusLoading, setPaymentStatusLoading] = useState(false);
 
-  // Load orders on mount
+  // fetch orders on mount
   useEffect(() => {
     fetchOrders();
   }, []);
 
-  // Fetch orders from API
+  // fetch orders from API and map to UI shape
   const fetchOrders = async () => {
     setIsLoading(true);
-
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/order`);
-      const result = await response.json();
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/order`);
+      const json = await res.json();
 
-      if (result.success) {
-        const ordersData = result.data.map((order) => ({
-          ...order,
-          orderNumber: order.id, // You can map `id` to orderNumber
-          date: order.createdAt, // use createdAt for sorting/filtering
-          customer: order.user, // use nested user object
-          payment: { amount: order.totalAmount }, // for orderStats.totalAmount
+      if (!res.ok || !json.success) {
+        throw new Error(json?.message || "Failed to fetch orders");
+      }
+
+      const ordersData = json.data.map((order) => {
+        // convert items -> products array expected by UI
+        const products = (order.items || []).map((it) => ({
+          id: it.productId,
+          sku: it.sku,
+          name: it.sku || `Product ${it.productId?.slice?.(0, 6) ?? ""}`,
+          image:
+            it.productImage ||
+            `https://via.placeholder.com/40?text=${encodeURIComponent(
+              (it.sku && it.sku.charAt(0)) || "P"
+            )}`,
+          quantity:
+            it.quantity ?? it.quantity ?? (it.quantity === 0 ? 0 : it.quantity),
+          price: it.price ?? it.price,
+          total: it.total ?? it.total,
         }));
 
-        setOrders(ordersData);
-        setFilteredOrders(ordersData);
-      } else {
-        console.error("Failed to fetch orders:", result.message);
-      }
+        return {
+          ...order,
+          // UI-friendly fields
+          orderNumber: order.id,
+          date: order.createdAt,
+          customer: {
+            id: order.user?.id,
+            name: order.user?.name ?? order.user?.email ?? "Unknown",
+            email: order.user?.email ?? "",
+            avatar: order.user?.avatarUrl ?? order.user?.avatar ?? null,
+          },
+          payment: {
+            amount: order.totalAmount ?? order.total ?? 0,
+            method: order.paymentMethod ?? order.payment?.method ?? "COD",
+            status: order.paymentStatus ?? order.payment?.status ?? "PENDING",
+          },
+          products,
+        };
+      });
+
+      setOrders(ordersData);
+      setFilteredOrders(ordersData);
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {
@@ -71,173 +99,223 @@ export default function OrderManagement() {
     }
   };
 
-  // Search handler
+  // Filtering / searching / sorting effect
   useEffect(() => {
     let result = [...orders];
 
-    // Apply search filter
+    // search
     if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(
-        (order) =>
-          order.orderNumber.toLowerCase().includes(query) ||
-          order.customer.name.toLowerCase().includes(query) ||
-          order.customer.email.toLowerCase().includes(query)
-      );
+      const q = searchQuery.toLowerCase();
+      result = result.filter((order) => {
+        const id = (order.id ?? "").toString().toLowerCase();
+        const orderNumber = (order.orderNumber ?? "").toString().toLowerCase();
+        const name = (order.customer?.name ?? "").toLowerCase();
+        const email = (order.customer?.email ?? "").toLowerCase();
+
+        return (
+          id.includes(q) ||
+          orderNumber.includes(q) ||
+          name.includes(q) ||
+          email.includes(q)
+        );
+      });
     }
 
-    // Apply status filter
+    // status filter
     if (statusFilter !== "all") {
       result = result.filter(
-        (order) => order.status.toLowerCase() === statusFilter.toLowerCase()
+        (o) =>
+          (o.status ?? "").toString().toLowerCase() ===
+          statusFilter.toLowerCase()
       );
     }
 
-    // Apply date filter
+    // date filter
     if (dateFilter !== "all") {
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
       switch (dateFilter) {
         case "today":
-          result = result.filter((order) => new Date(order.date) >= today);
+          result = result.filter((o) => new Date(o.date) >= today);
           break;
         case "yesterday": {
           const yesterday = new Date(today);
           yesterday.setDate(yesterday.getDate() - 1);
           result = result.filter(
-            (order) =>
-              new Date(order.date) >= yesterday && new Date(order.date) < today
+            (o) => new Date(o.date) >= yesterday && new Date(o.date) < today
           );
           break;
         }
         case "thisWeek": {
           const weekStart = new Date(today);
           weekStart.setDate(today.getDate() - today.getDay());
-          result = result.filter((order) => new Date(order.date) >= weekStart);
+          result = result.filter((o) => new Date(o.date) >= weekStart);
           break;
         }
         case "thisMonth": {
           const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-          result = result.filter((order) => new Date(order.date) >= monthStart);
+          result = result.filter((o) => new Date(o.date) >= monthStart);
           break;
         }
       }
     }
 
-    // Apply sorting
+    // sorting by date desc by default
     result.sort((a, b) => {
-      let valueA = a[sortField];
-      let valueB = b[sortField];
-
-      if (sortField === "date") {
-        valueA = new Date(a.date).getTime();
-        valueB = new Date(b.date).getTime();
-      }
-
-      if (valueA < valueB) return sortDirection === "asc" ? -1 : 1;
-      if (valueA > valueB) return sortDirection === "asc" ? 1 : -1;
-      return 0;
+      const ta = new Date(a.date).getTime();
+      const tb = new Date(b.date).getTime();
+      return tb - ta;
     });
 
     setFilteredOrders(result);
-  }, [orders, searchQuery, statusFilter, dateFilter, sortField, sortDirection]);
+    setCurrentPage(1); // reset page when filters change
+  }, [orders, searchQuery, statusFilter, dateFilter]);
 
-  // Handle order status update
-  const handleStatusUpdate = async (orderId, newStatus) => {
-    if (statusUpdateLoading) return;
+  // Pagination helpers
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredOrders.length / itemsPerPage)
+  );
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedOrders = filteredOrders.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
-    setStatusUpdateLoading(true);
-
-    try {
-      // In real implementation, update via API
-      // await fetch(`/api/admin/orders/${orderId}/status`, {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ status: newStatus })
-      // });
-
-      // For demo purposes, simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      // Update local state
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order.id === orderId ? { ...order, status: newStatus } : order
-        )
-      );
-
-      // If updating the selected order, update that too
-      if (selectedOrder && selectedOrder.id === orderId) {
-        setSelectedOrder({ ...selectedOrder, status: newStatus });
-      }
-    } catch (error) {
-      console.error("Error updating order status:", error);
-    } finally {
-      setStatusUpdateLoading(false);
-    }
-  };
-
-  // Handle viewing order details
+  // view order
   const handleViewOrder = (order) => {
     setSelectedOrder(order);
     setIsDetailModalOpen(true);
   };
 
-  // Handle sort change
-  // const handleSortChange = (field) => {
-  //   if (field === sortField) {
-  //     setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-  //   } else {
-  //     setSortField(field);
-  //     setSortDirection("asc");
-  //   }
-  // };
+  // update order status (PATCH /order/{id}/status)
+  const handleStatusUpdate = async (orderId, newStatus) => {
+    if (statusUpdateLoading) return;
+    setStatusUpdateLoading(true);
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/order/${orderId}/status`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus }),
+        }
+      );
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json?.message || "Failed");
+      const updated = json.data;
 
-  // Handle page change for pagination
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
+      // merge update into local state: server returns updated order in `data`
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === orderId
+            ? {
+                ...o,
+                ...updated,
+                // keep UI-friendly fields consistent
+                status: updated.status ?? o.status,
+                payment: {
+                  ...o.payment,
+                  status: updated.paymentStatus ?? o.payment.status,
+                },
+              }
+            : o
+        )
+      );
+
+      if (selectedOrder && selectedOrder.id === orderId) {
+        setSelectedOrder((s) => ({ ...s, ...updated }));
+      }
+    } catch (err) {
+      console.error("❌ Error updating order status:", err);
+    } finally {
+      setStatusUpdateLoading(false);
+    }
   };
 
-  // Get status badge component based on status
+  // update payment status (PATCH /order/{id}/payment-status)
+  const handlePaymentStatusUpdate = async (orderId, newStatus) => {
+    if (paymentStatusLoading) return;
+    setPaymentStatusLoading(true);
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/order/${orderId}/payment-status`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus }),
+        }
+      );
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json?.message || "Failed");
+
+      const updated = json.data;
+
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === orderId
+            ? {
+                ...o,
+                ...updated,
+                payment: {
+                  ...o.payment,
+                  status: updated.paymentStatus ?? o.payment.status,
+                  method: updated.paymentMethod ?? o.payment.method,
+                },
+              }
+            : o
+        )
+      );
+
+      if (selectedOrder && selectedOrder.id === orderId) {
+        setSelectedOrder((s) => ({ ...s, ...updated }));
+      }
+    } catch (err) {
+      console.error("❌ Error updating payment status:", err);
+    } finally {
+      setPaymentStatusLoading(false);
+    }
+  };
+
+  // badges
   const getStatusBadge = (status) => {
-    switch (status) {
-      case "pending":
+    switch ((status || "").toString().toUpperCase()) {
+      case "PENDING":
         return (
           <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full flex items-center text-xs font-medium">
             <Clock size={12} className="mr-1" />
             অপেক্ষারত
           </span>
         );
-      case "processing":
+      case "PROCESSING":
         return (
           <span className="px-2 py-1 bg-amber-100 text-amber-800 rounded-full flex items-center text-xs font-medium">
             <PackageOpen size={12} className="mr-1" />
             প্রস্তুত হচ্ছে
           </span>
         );
-      case "shipped":
+      case "SHIPPED":
         return (
           <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full flex items-center text-xs font-medium">
             <Truck size={12} className="mr-1" />
             শিপ করা হয়েছে
           </span>
         );
-      case "delivered":
+      case "DELIVERED":
         return (
           <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full flex items-center text-xs font-medium">
             <CheckCircle size={12} className="mr-1" />
             ডেলিভারি হয়েছে
           </span>
         );
-      case "cancelled":
+      case "CANCELLED":
         return (
           <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full flex items-center text-xs font-medium">
             <XCircle size={12} className="mr-1" />
             বাতিল করা হয়েছে
           </span>
         );
-      case "returned":
+      case "REFUNDED":
         return (
           <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full flex items-center text-xs font-medium">
             <RefreshCw size={12} className="mr-1" />
@@ -249,28 +327,27 @@ export default function OrderManagement() {
     }
   };
 
-  // Get payment status badge component
   const getPaymentStatusBadge = (status) => {
-    switch (status) {
-      case "paid":
+    switch ((status || "").toString().toUpperCase()) {
+      case "PAID":
         return (
           <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
             পরিশোধিত
           </span>
         );
-      case "pending":
+      case "PENDING":
         return (
           <span className="px-2 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-medium">
             অপেক্ষমান
           </span>
         );
-      case "failed":
+      case "FAILED":
         return (
           <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">
             ব্যর্থ
           </span>
         );
-      case "refunded":
+      case "REFUNDED":
         return (
           <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
             ফেরত দেওয়া হয়েছে
@@ -281,43 +358,40 @@ export default function OrderManagement() {
     }
   };
 
-  // Format date for display
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString("bn-BD", {
+  const formatDate = (dateString) =>
+    new Date(dateString).toLocaleString("bn-BD", {
       year: "numeric",
       month: "short",
       day: "numeric",
       hour: "numeric",
       minute: "numeric",
     });
-  };
 
-  // Calculate pagination values
-  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedOrders = filteredOrders.slice(
-    startIndex,
-    startIndex + itemsPerPage
-  );
-
-  // Calculate total order amount and count by status
   const orderStats = {
     total: orders.length,
-    pending: orders.filter((order) => order.status === "pending").length,
-    processing: orders.filter((order) => order.status === "processing").length,
-    shipped: orders.filter((order) => order.status === "shipped").length,
-    delivered: orders.filter((order) => order.status === "delivered").length,
-    cancelled: orders.filter((order) => order.status === "cancelled").length,
-    returned: orders.filter((order) => order.status === "returned").length,
-    totalAmount: orders.reduce((sum, order) => sum + order.payment.amount, 0),
+    pending: orders.filter((o) => (o.status || "").toUpperCase() === "PENDING")
+      .length,
+    processing: orders.filter(
+      (o) => (o.status || "").toUpperCase() === "PROCESSING"
+    ).length,
+    shipped: orders.filter((o) => (o.status || "").toUpperCase() === "SHIPPED")
+      .length,
+    delivered: orders.filter(
+      (o) => (o.status || "").toUpperCase() === "DELIVERED"
+    ).length,
+    cancelled: orders.filter(
+      (o) => (o.status || "").toUpperCase() === "CANCELLED"
+    ).length,
+    returned: orders.filter(
+      (o) => (o.status || "").toUpperCase() === "REFUNDED"
+    ).length,
+    totalAmount: orders.reduce((sum, o) => sum + (o.payment?.amount || 0), 0),
   };
 
-  // Animation variants for Framer Motion
   const fadeIn = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.4 } },
   };
-
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
@@ -325,37 +399,47 @@ export default function OrderManagement() {
 
   return (
     <div className="bg-white min-h-screen">
-      {/* Header */}
-
       <Header />
-
-      {/* Main Content */}
       <div className="max-w-7xl mx-auto py-8 px-4">
-        {/* Order Stats */}
         <OrderStats fadeIn={fadeIn} orderStats={orderStats} />
 
-        {/* Filters and Controls */}
-        <FiltersAndControls fadeIn={fadeIn} fetchOrders={fetchOrders} />
-
-        {/* Orders Table */}
-        <OrderTable
+        <FiltersAndControls
           fadeIn={fadeIn}
-          // handleSortChange={handleSortChange}
+          fetchOrders={fetchOrders}
+          isLoading={isLoading}
+          // wire control props so controls are driven by parent state
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          dateFilter={dateFilter}
+          setDateFilter={setDateFilter}
+          itemsPerPage={itemsPerPage}
+          setItemsPerPage={(n) => {
+            setItemsPerPage(n);
+            setCurrentPage(() => 1);
+          }}
+        />
+
+        <OrderTable
+          fadeInUp={fadeInUp}
           paginatedOrders={paginatedOrders}
           handleViewOrder={handleViewOrder}
           getPaymentStatusBadge={getPaymentStatusBadge}
           getStatusBadge={getStatusBadge}
           formatDate={formatDate}
           startIndex={startIndex}
-          handlePageChange={handlePageChange}
+          handlePageChange={(p) => setCurrentPage(p)}
           totalPages={totalPages}
-          fadeInUp={fadeInUp}
           filteredOrders={filteredOrders}
           orders={orders}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          isLoading={isLoading}
+          itemsPerPage={itemsPerPage}
         />
       </div>
 
-      {/* Order Detail Modal */}
       {isDetailModalOpen && selectedOrder && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center overflow-y-auto z-50 p-4">
           <motion.div
@@ -376,30 +460,27 @@ export default function OrderManagement() {
                 </button>
               </div>
 
-              {/* Order summary */}
               <OrderSummary
                 selectedOrder={selectedOrder}
                 getStatusBadge={getStatusBadge}
                 formatDate={formatDate}
               />
-
-              {/* Customer info */}
               <CustomerInfo selectedOrder={selectedOrder} />
-
-              {/* Products */}
               <Products selectedOrder={selectedOrder} />
-
-              {/* Notes */}
               {selectedOrder.notes && <Notes selectedOrder={selectedOrder} />}
 
-              {/* Update order status */}
               <UpdateOrderStaus
                 handleStatusUpdate={handleStatusUpdate}
                 selectedOrder={selectedOrder}
                 statusUpdateLoading={statusUpdateLoading}
               />
 
-              {/* Action buttons */}
+              <UpdatePaymentStatus
+                handlePaymentStatusUpdate={handlePaymentStatusUpdate}
+                selectedOrder={selectedOrder}
+                paymentStatusLoading={paymentStatusLoading}
+              />
+
               <ActionButtons setIsDetailModalOpen={setIsDetailModalOpen} />
             </div>
           </motion.div>

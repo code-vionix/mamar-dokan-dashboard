@@ -1,13 +1,20 @@
 import { motion } from "framer-motion";
 import { RefreshCw, Search } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 
-function FiltersAndControls({ fadeIn, fetchOrders, isLoading }) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [dateFilter, setDateFilter] = useState("all");
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-
+function FiltersAndControls({
+  fadeIn,
+  fetchOrders,
+  isLoading,
+  searchQuery,
+  setSearchQuery,
+  statusFilter,
+  setStatusFilter,
+  dateFilter,
+  setDateFilter,
+  itemsPerPage,
+  setItemsPerPage,
+}) {
   return (
     <motion.div
       initial="hidden"
@@ -39,25 +46,6 @@ function FiltersAndControls({ fadeIn, fetchOrders, isLoading }) {
             />
             রিফ্রেশ
           </button>
-
-          {/* Print Button */}
-          {/* <button
-            onClick={handlePrint}
-            className="px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 flex items-center text-sm"
-            title="প্রিন্ট করুন"
-          >
-            <Printer size={16} className="mr-1" />
-            প্রিন্ট
-          </button> */}
-
-          {/* Future: Export Button */}
-          {/* <button
-            className="px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 flex items-center text-sm"
-            title="সব অর্ডার এক্সপোর্ট করুন"
-          >
-            <Download size={16} className="mr-1" />
-            এক্সপোর্ট
-          </button> */}
         </div>
       </div>
 
@@ -123,7 +111,7 @@ function FiltersAndControls({ fadeIn, fetchOrders, isLoading }) {
           </div>
 
           {/* Items per page */}
-          {/* <div className="flex items-center">
+          <div className="flex items-center">
             <label
               htmlFor="items-per-page"
               className="mr-2 text-sm text-gray-600"
@@ -133,15 +121,16 @@ function FiltersAndControls({ fadeIn, fetchOrders, isLoading }) {
             <select
               id="items-per-page"
               value={itemsPerPage}
-              onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
+              onChange={(e) => setItemsPerPage(Number(e.target.value))}
               className="px-2 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
             >
+              <option value={5}>5</option>
               <option value={10}>10</option>
               <option value={25}>25</option>
               <option value={50}>50</option>
               <option value={100}>100</option>
             </select>
-          </div> */}
+          </div>
         </div>
       </div>
     </motion.div>

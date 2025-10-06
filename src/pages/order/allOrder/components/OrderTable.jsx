@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import {
+  Copy,
   Eye,
   FileText,
   Loader2,
@@ -9,17 +10,8 @@ import {
   ShoppingBag,
 } from "lucide-react";
 import React, { useState } from "react";
+import normalizeOrder from "../../lib/normalizeOrder";
 
-/**
- * OrderTable
- * - Accepts either API-shaped orders (with .user, .items, .totalAmount, .paymentMethod, etc.)
- *   OR already-normalized orders (order.customer, order.products, order.payment, etc.)
- *
- * Props expected (keeps your existing prop names):
- * - paginatedOrders: array (can be API objects or normalized objects)
- * - handleViewOrder, getPaymentStatusBadge, getStatusBadge, formatDate, startIndex,
- *   handlePageChange, totalPages, filteredOrders, orders
- */
 function OrderTable({
   fadeInUp,
   paginatedOrders = [],
@@ -32,55 +24,26 @@ function OrderTable({
   totalPages = 1,
   filteredOrders = [],
   orders = [],
+  currentPage,
+  setCurrentPage,
+  isLoading,
+  itemsPerPage,
 }) {
-  const [isLoading] = useState(false);
-  const [itemsPerPage] = useState(10); // kept local to preserve original UI text
-  const [currentPage, setCurrentPage] = useState(1);
-
-  // Normalize single order (API shape -> UI shape). If already normalized, return as-is.
-  const normalizeOrder = (o) => {
-    // Detect API shape by presence of `user` or `items`
-    const looksLikeApi = !!(o && (o.user || o.items));
-
-    if (!looksLikeApi) return o;
-
-    const user = o.user || {};
-    const items = o.items || [];
-
-    const products = items.map((it) => ({
-      name: it.sku || `Product ${it.productId?.slice?.(0, 6) ?? ""}`,
-      image:
-        it.productImage ||
-        `https://via.placeholder.com/40?text=${encodeURIComponent(
-          (it.sku && it.sku.charAt(0)) || "P"
-        )}`,
-      quantity: it.quantity ?? 1,
-    }));
-
-    return {
-      id: o.id,
-      // create a short orderNumber if original doesn't have one
-      orderNumber:
-        o.orderNumber || (o.id ? o.id.slice(0, 8).toUpperCase() : o.id),
-      date: o.createdAt || o.updatedAt || o.date,
-      status: (o.status || "").toLowerCase(),
-      payment: {
-        amount: o.totalAmount ?? o.subtotal ?? 0,
-        method:
-          o.paymentMethod || o.payment_method || o.payment?.method || "COD",
-        status: (o.paymentStatus || o.payment?.status || "").toLowerCase(),
-      },
-      customer: {
-        name: user.name || o.user?.email || o.email || "Unknown",
-        email: user.email || o.email || "",
-        avatar: user.avatarUrl || user.avatar || "",
-      },
-      products,
-      notes: o.notes || "",
-      raw: o, // keep original if needed
-    };
+  const [copied, setCopied] = useState({});
+  /* handler start */
+  const handleCopy = async (orderNumber) => {
+    try {
+      await navigator.clipboard.writeText(orderNumber);
+      setCopied((prev) => ({ ...prev, [orderNumber]: true }));
+      setTimeout(() => {
+        setCopied((prev) => ({ ...prev, [orderNumber]: false }));
+      }, 1500);
+    } catch (err) {
+      console.error("Copy failed:", err);
+    }
   };
 
+  /* handler end */
   return (
     <motion.div
       initial="hidden"
@@ -136,8 +99,25 @@ function OrderTable({
 
                 return (
                   <tr key={order.id} className="hover:bg-amber-50">
-                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {order.orderNumber}
+                    <td
+                      className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 cursor-pointer"
+                      onClick={() => handleCopy(order.orderNumber)}
+                      title="কপি করুন"
+                    >
+                      <div className="flex flex-col items-start gap-1">
+                        <div className="flex items-center gap-1">
+                          {order.orderNumber}
+                          <Copy
+                            size={14}
+                            className="text-gray-400 hover:text-gray-600"
+                          />
+                        </div>
+                        {copied[order.orderNumber] && (
+                          <span className="text-green-600 text-xs ">
+                            ✅ কপি হয়েছে
+                          </span>
+                        )}
+                      </div>
                     </td>
 
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
@@ -209,7 +189,7 @@ function OrderTable({
                     </td>
 
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                      ৳{(order.payment?.amount ?? 0).toLocaleString()}
+                      ৳{(order?.payment?.amount ?? 0).toLocaleString()}
                     </td>
 
                     <td className="px-4 py-4 whitespace-nowrap">
@@ -218,7 +198,9 @@ function OrderTable({
                           {order.payment?.method}
                         </div>
                         {typeof getPaymentStatusBadge === "function"
-                          ? getPaymentStatusBadge(order.payment?.status)
+                          ? getPaymentStatusBadge(
+                              order?.payment?.status.toUpperCase()
+                            )
                           : null}
                       </div>
                     </td>
@@ -319,6 +301,7 @@ function OrderTable({
           </div>
 
           <div className="flex space-x-1">
+            {/* Previous Button */}
             <button
               onClick={() => {
                 const prev = Math.max(1, currentPage - 1);
@@ -335,23 +318,29 @@ function OrderTable({
               পূর্ববর্তী
             </button>
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => {
-                  setCurrentPage(page);
-                  handlePageChange && handlePageChange(page);
-                }}
-                className={`px-3 py-1 rounded ${
-                  currentPage === page
-                    ? "bg-amber-500 text-white"
-                    : "border border-gray-300 text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                {page}
-              </button>
-            ))}
+            {/* Page Numbers */}
+            {Array.from({ length: 3 }, (_, i) => {
+              const pageNumber = currentPage - 1 + i;
+              if (pageNumber < 1 || pageNumber > totalPages) return null;
+              return (
+                <button
+                  key={pageNumber}
+                  onClick={() => {
+                    setCurrentPage(pageNumber);
+                    handlePageChange && handlePageChange(pageNumber);
+                  }}
+                  className={`px-3 py-1 rounded ${
+                    currentPage === pageNumber
+                      ? "bg-amber-500 text-white border border-amber-500"
+                      : "border border-gray-300 text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  {pageNumber}
+                </button>
+              );
+            })}
 
+            {/* Next Button */}
             <button
               onClick={() => {
                 const next = Math.min(totalPages, currentPage + 1);

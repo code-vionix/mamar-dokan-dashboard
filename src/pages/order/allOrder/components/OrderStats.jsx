@@ -1,10 +1,8 @@
-import { Clock, ShoppingBag, Tag, Truck } from "lucide-react";
 import { motion } from "framer-motion";
-import React, { useState } from "react";
+import { Clock, ShoppingBag, Tag, Truck } from "lucide-react";
+import React from "react";
 
-function OrderStats({orderStats, fadeIn}) {
-  const [orders, setOrders] = useState([]);
-
+function OrderStats({ orderStats, fadeIn }) {
   return (
     <motion.div
       initial="hidden"
@@ -42,9 +40,9 @@ function OrderStats({orderStats, fadeIn}) {
         </p>
         <div className="mt-2 text-xs text-gray-500">
           গড় অর্ডার মূল্য: ৳
-          {orders.length > 0
+          {orderStats.total > 0
             ? Math.round(
-                orderStats.totalAmount / orders.length
+                orderStats.totalAmount / orderStats.total
               ).toLocaleString()
             : 0}
         </div>
@@ -73,8 +71,8 @@ function OrderStats({orderStats, fadeIn}) {
         </p>
         <div className="mt-2 text-xs text-gray-500">
           সম্পন্ন হার:{" "}
-          {orders.length > 0
-            ? Math.round((orderStats.delivered / orders.length) * 100)
+          {orderStats.total > 0
+            ? Math.round((orderStats.delivered / orderStats.total) * 100)
             : 0}
           %
         </div>
