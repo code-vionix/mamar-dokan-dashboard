@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, ChevronLeft, ChevronRight, User } from "lucide-react";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -12,8 +13,12 @@ export default function Sidebar({
 }) {
   const location = useLocation();
 
-  const isPathActive = (path) => {
-    return location.pathname.startsWith(path);
+  const isPathActive = (path) => location.pathname.startsWith(path);
+
+  // framer-motion variants for submenu
+  const submenuVariants = {
+    hidden: { height: 0, opacity: 0, transition: { duration: 0.2 } },
+    visible: { height: "auto", opacity: 1, transition: { duration: 0.3 } },
   };
 
   return (
@@ -54,6 +59,7 @@ export default function Sidebar({
         <ul className="space-y-1">
           {navItems.map((item) => {
             const active = isPathActive(item.href);
+
             return (
               <li key={item.href}>
                 {item.children ? (
@@ -77,41 +83,53 @@ export default function Sidebar({
                           <span className="ml-3 flex-1 text-left">
                             {item.title}
                           </span>
-                          <ChevronDown
-                            size={16}
-                            className={`transform transition-transform ${
-                              openMenus[item.title] ? "rotate-180" : ""
-                            }`}
-                          />
+                          <motion.div
+                            animate={{
+                              rotate: openMenus[item.title] ? 180 : 0,
+                            }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <ChevronDown size={16} />
+                          </motion.div>
                         </>
                       )}
                     </button>
-                    {sidebarOpen && openMenus[item.title] && (
-                      <ul className="pl-4 mt-1 space-y-1">
-                        {item.children.map((child) => (
-                          <li key={child.href}>
-                            <Link
-                              to={child.href}
-                              className={`flex items-center p-2 rounded-md text-sm ${
-                                location.pathname === child.href
-                                  ? "bg-amber-50 text-amber-700"
-                                  : "text-gray-700 hover:bg-gray-100"
-                              }`}
-                            >
-                              <child.icon
-                                size={18}
-                                className={`${
+
+                    {/* Animate submenu */}
+                    <AnimatePresence>
+                      {sidebarOpen && openMenus[item.title] && (
+                        <motion.ul
+                          initial="hidden"
+                          animate="visible"
+                          exit="hidden"
+                          variants={submenuVariants}
+                          className="pl-4 mt-1 space-y-1 overflow-hidden"
+                        >
+                          {item.children.map((child) => (
+                            <li key={child.href}>
+                              <Link
+                                to={child.href}
+                                className={`flex items-center p-2 rounded-md text-sm ${
                                   location.pathname === child.href
-                                    ? "text-amber-600"
-                                    : "text-gray-500"
+                                    ? "bg-amber-50 text-amber-700"
+                                    : "text-gray-700 hover:bg-gray-100"
                                 }`}
-                              />
-                              <span className="ml-3">{child.title}</span>
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+                              >
+                                <child.icon
+                                  size={18}
+                                  className={`${
+                                    location.pathname === child.href
+                                      ? "text-amber-600"
+                                      : "text-gray-500"
+                                  }`}
+                                />
+                                <span className="ml-3">{child.title}</span>
+                              </Link>
+                            </li>
+                          ))}
+                        </motion.ul>
+                      )}
+                    </AnimatePresence>
                   </div>
                 ) : (
                   <Link
@@ -138,6 +156,7 @@ export default function Sidebar({
           })}
         </ul>
       </nav>
+
       <div
         className={`p-4 border-t border-gray-200 ${
           sidebarOpen ? "" : "flex justify-center"
