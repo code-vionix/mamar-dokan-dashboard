@@ -72,7 +72,7 @@ function OrderStats({ orderStats, fadeIn }) {
         <div className="mt-2 text-xs text-gray-500">
           সম্পন্ন হার:{" "}
           {orderStats.total > 0
-            ? Math.round((orderStats.delivered / orderStats.total) * 100)
+            ? Math.round((orderStats.confirmed / orderStats.total) * 100)
             : 0}
           %
         </div>
