@@ -9,7 +9,6 @@ import CreateProductPage from "../pages/create/CreateProductPage";
 import EditProductPage from "../pages/editProduct/EditProductPage";
 import InventoryPage from "../pages/inventory/InventoryPage";
 import OrderManagement from "../pages/order/allOrder/AllOrder";
-import OrdersProcessingPage from "../pages/order/orderProcessing/OrderProcessing";
 import { productsPath } from "./path";
 
 function App() {
@@ -31,7 +30,7 @@ function App() {
 
           <Route path="/inventory" element={<InventoryPage />} />
           <Route path="/orders" element={<OrderManagement />} />
-          <Route path="/orders/processing" element={<OrdersProcessingPage />} />
+
           <Route path="/customers" element={<CustomersPage />} />
         </Route>
       </Routes>

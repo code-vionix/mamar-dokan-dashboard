@@ -22,11 +22,15 @@ export default function Layout() {
     };
   }, []);
 
-  const toggleMenu = (title) => {
-    setOpenMenus((prev) => ({
-      ...prev,
-      [title]: !prev[title],
-    }));
+  const toggleMenu = (menuTitle) => {
+    setOpenMenus((prev) => {
+      const isCurrentlyOpen = !!prev[menuTitle];
+      if (isCurrentlyOpen) {
+        return { ...prev, [menuTitle]: false };
+      } else {
+        return { [menuTitle]: true };
+      }
+    });
   };
 
   const toggleSidebar = () => {

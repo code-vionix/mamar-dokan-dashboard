@@ -3,7 +3,6 @@ import {
   Package,
   ShoppingBag,
   ShoppingCart,
-  Truck,
   Users,
 } from "lucide-react";
 
@@ -58,12 +57,12 @@ const navItems = [
         href: "/orders",
         icon: ShoppingBag,
       },
-      {
-        title: "অর্ডার প্রসেসিং",
-        englishTitle: "Order Processing",
-        href: "/orders/processing",
-        icon: Truck,
-      },
+      // {
+      //   title: "অর্ডার প্রসেসিং",
+      //   englishTitle: "Order Processing",
+      //   href: "/orders/processing",
+      //   icon: Truck,
+      // },
       // {
       //   title: "রিটার্নস",
       //   englishTitle: "Returns",

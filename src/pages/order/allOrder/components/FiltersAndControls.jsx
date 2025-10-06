@@ -1,13 +1,20 @@
 import { motion } from "framer-motion";
-import { Download, Printer, RefreshCw, Search } from "lucide-react";
-import React, { useState } from "react";
+import { RefreshCw, Search } from "lucide-react";
+import React from "react";
 
-function FiltersAndControls({ fadeIn, fetchOrders }) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [dateFilter, setDateFilter] = useState("all");
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-
+function FiltersAndControls({
+  fadeIn,
+  fetchOrders,
+  isLoading,
+  searchQuery,
+  setSearchQuery,
+  statusFilter,
+  setStatusFilter,
+  dateFilter,
+  setDateFilter,
+  itemsPerPage,
+  setItemsPerPage,
+}) {
   return (
     <motion.div
       initial="hidden"
@@ -15,39 +22,34 @@ function FiltersAndControls({ fadeIn, fetchOrders }) {
       variants={fadeIn}
       className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 mb-6"
     >
+      {/* Header: Title + Actions */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
         <h2 className="text-lg font-medium text-gray-800 mb-4 md:mb-0">
           অর্ডার তালিকা
         </h2>
 
         <div className="flex flex-wrap gap-2">
+          {/* Refresh Button */}
           <button
             onClick={fetchOrders}
-            className="px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 flex items-center text-sm"
+            disabled={isLoading}
+            className={`px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 flex items-center text-sm transition-colors ${
+              isLoading ? "bg-gray-100 cursor-wait" : "hover:bg-gray-50"
+            }`}
             title="রিফ্রেশ করুন"
           >
-            <RefreshCw size={16} className="mr-1" />
+            <RefreshCw
+              size={16}
+              className={`mr-1 ${
+                isLoading ? "animate-spin text-gray-600" : "text-gray-700"
+              }`}
+            />
             রিফ্রেশ
-          </button>
-
-          <button
-            className="px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 flex items-center text-sm"
-            title="সব অর্ডার এক্সপোর্ট করুন"
-          >
-            <Download size={16} className="mr-1" />
-            এক্সপোর্ট
-          </button>
-
-          <button
-            className="px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 flex items-center text-sm"
-            title="প্রিন্ট করুন"
-          >
-            <Printer size={16} className="mr-1" />
-            প্রিন্ট
           </button>
         </div>
       </div>
 
+      {/* Filters */}
       <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 gap-4">
         {/* Search */}
         <div className="w-full md:w-auto relative">
@@ -119,9 +121,10 @@ function FiltersAndControls({ fadeIn, fetchOrders }) {
             <select
               id="items-per-page"
               value={itemsPerPage}
-              onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
+              onChange={(e) => setItemsPerPage(Number(e.target.value))}
               className="px-2 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
             >
+              <option value={5}>5</option>
               <option value={10}>10</option>
               <option value={25}>25</option>
               <option value={50}>50</option>
