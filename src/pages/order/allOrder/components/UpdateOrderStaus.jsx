@@ -1,87 +1,57 @@
-import React from "react";
+import { Loader2 } from "lucide-react";
+import React, { useState } from "react";
 
-function UpdateOrderStaus({
-  handleStatusUpdate,
-  selectedOrder,
-  statusUpdateLoading,
-}) {
+function UpdateOrderStatus({ handleStatusUpdate, selectedOrder }) {
+  // Track which status is being updated
+  const [updatingStatus, setUpdatingStatus] = useState(null);
+
+  const statuses = [
+    { key: "PENDING", label: "অপেক্ষারত", color: "orange" },
+    { key: "PROCESSING", label: "প্রস্তুত হচ্ছে", color: "amber" },
+    { key: "SHIPPED", label: "শিপ করা হয়েছে", color: "purple" },
+    { key: "DELIVERED", label: "ডেলিভারি হয়েছে", color: "blue" },
+    { key: "CANCELLED", label: "বাতিল করা হয়েছে", color: "red" },
+    { key: "REFUNDED", label: "ফেরত", color: "gray" },
+    { key: "CONFIRMED", label: "নিশ্চিত", color: "green" },
+  ];
+
+  const handleClick = async (statusKey) => {
+    setUpdatingStatus(statusKey);
+    try {
+      await handleStatusUpdate(selectedOrder.id, statusKey);
+    } finally {
+      setUpdatingStatus(null);
+    }
+  };
+
   return (
     <div className="border-t border-gray-200 pt-4 mb-6">
       <h4 className="font-medium text-gray-800 mb-3">
         অর্ডার স্ট্যাটাস আপডেট করুন
       </h4>
       <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => handleStatusUpdate(selectedOrder.id, "PENDING")}
-          disabled={selectedOrder.status === "PENDING" || statusUpdateLoading}
-          className={`px-3 py-2 rounded-md text-sm ${
-            selectedOrder.status === "PENDING"
-              ? "bg-blue-100 text-blue-800 cursor-not-allowed"
-              : "border border-blue-300 text-blue-700 hover:bg-blue-50"
-          }`}
-        >
-          অপেক্ষারত
-        </button>
-        <button
-          onClick={() => handleStatusUpdate(selectedOrder.id, "PROCESSING")}
-          disabled={
-            selectedOrder.status === "PROCESSING" || statusUpdateLoading
-          }
-          className={`px-3 py-2 rounded-md text-sm ${
-            selectedOrder.status === "PROCESSING"
-              ? "bg-amber-100 text-amber-800 cursor-not-allowed"
-              : "border border-amber-300 text-amber-700 hover:bg-amber-50"
-          }`}
-        >
-          প্রস্তুত হচ্ছে
-        </button>
-        <button
-          onClick={() => handleStatusUpdate(selectedOrder.id, "SHIPPED")}
-          disabled={selectedOrder.status === "SHIPPED" || statusUpdateLoading}
-          className={`px-3 py-2 rounded-md text-sm ${
-            selectedOrder.status === "SHIPPED"
-              ? "bg-purple-100 text-purple-800 cursor-not-allowed"
-              : "border border-purple-300 text-purple-700 hover:bg-purple-50"
-          }`}
-        >
-          শিপ করা হয়েছে
-        </button>
-        <button
-          onClick={() => handleStatusUpdate(selectedOrder.id, "DELIVERED")}
-          disabled={selectedOrder.status === "DELIVERED" || statusUpdateLoading}
-          className={`px-3 py-2 rounded-md text-sm ${
-            selectedOrder.status === "DELIVERED"
-              ? "bg-green-100 text-green-800 cursor-not-allowed"
-              : "border border-green-300 text-green-700 hover:bg-green-50"
-          }`}
-        >
-          ডেলিভারি হয়েছে
-        </button>
-        <button
-          onClick={() => handleStatusUpdate(selectedOrder.id, "CANCELLED")}
-          disabled={selectedOrder.status === "CANCELLED" || statusUpdateLoading}
-          className={`px-3 py-2 rounded-md text-sm ${
-            selectedOrder.status === "CANCELLED"
-              ? "bg-red-100 text-red-800 cursor-not-allowed"
-              : "border border-red-300 text-red-700 hover:bg-red-50"
-          }`}
-        >
-          বাতিল করা হয়েছে
-        </button>
-        <button
-          onClick={() => handleStatusUpdate(selectedOrder.id, "REFUNDED")}
-          disabled={selectedOrder.status === "REFUNDED" || statusUpdateLoading}
-          className={`px-3 py-2 rounded-md text-sm ${
-            selectedOrder.status === "REFUNDED"
-              ? "bg-gray-200 text-gray-800 cursor-not-allowed"
-              : "border border-gray-300 text-gray-700 hover:bg-gray-50"
-          }`}
-        >
-          ফেরত
-        </button>
+        {statuses.map((status) => {
+          const isActive = selectedOrder.status === status.key;
+          const isLoading = updatingStatus === status.key;
+          return (
+            <button
+              key={status.key}
+              onClick={() => handleClick(status.key)}
+              disabled={isActive || isLoading}
+              className={`px-3 py-2 rounded-md text-sm flex items-center justify-center gap-1 ${
+                isActive
+                  ? `bg-${status.color}-100 text-${status.color}-800 cursor-not-allowed`
+                  : `border border-${status.color}-300 text-${status.color}-700 hover:bg-${status.color}-50`
+              }`}
+            >
+              {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+              {status.label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
 }
 
-export default UpdateOrderStaus;
+export default UpdateOrderStatus;

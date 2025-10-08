@@ -9,13 +9,16 @@ const normalizeOrder = (o) => {
   const user = o.user || {};
   const items = o.items || [];
 
-  const products = items.map((it) => ({
-    name: it.sku || `Product ${it.productId?.slice?.(0, 6) ?? ""}`,
-    image:
-      it.productImage || getUiAvatar((it.sku && it.sku.charAt(0)) || "P", 40),
-    quantity: it.quantity ?? 1,
-    ...it,
-  }));
+  const products = items.map((it) => {
+    return {
+      name: it.product.name || `Product ${it.productId?.slice?.(0, 6) ?? ""}`,
+      image:
+        it.product.images?.[0] ||
+        getUiAvatar((it.product.name && it.product.name.charAt(0)) || "P", 40),
+      quantity: it.quantity ?? 1,
+      ...it,
+    };
+  });
 
   return {
     id: o.id,
@@ -36,7 +39,8 @@ const normalizeOrder = (o) => {
     },
     products,
     notes: o.notes || "",
-    raw: o, // keep original if needed
+    paymentStatus: o.paymentStatus || "",
+    raw: { ...o }, // keep original if needed
   };
 };
 export default normalizeOrder;

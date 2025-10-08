@@ -87,7 +87,8 @@ function FiltersAndControls({
               <option value="shipped">শিপ করা হয়েছে</option>
               <option value="delivered">ডেলিভারি হয়েছে</option>
               <option value="cancelled">বাতিল করা হয়েছে</option>
-              <option value="returned">ফেরত</option>
+              <option value="confirmed">কনফার্ম হয়েছে</option>
+              <option value="refunded">ফেরত</option>
             </select>
           </div>
 
