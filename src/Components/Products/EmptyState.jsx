@@ -1,7 +1,6 @@
 import { PlusCircle, Search } from "lucide-react";
-import React from "react";
 import { Link } from "react-router-dom";
-
+import { createProductPath } from "../../routes/path";
 /**
  * Renders a reusable empty state component for when no products are found.
  * It displays an icon, a title, a message, and a call-to-action button
@@ -20,7 +19,7 @@ const EmptyState = () => {
         আপনার অনুসন্ধান মানদণ্ড পরিবর্তন করুন বা নতুন পণ্য যোগ করুন
       </p>
       <Link
-        to="/admin/products/create"
+        to={createProductPath}
         className="mt-4 inline-flex items-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-md transition-colors"
       >
         <PlusCircle className="h-4 w-4 mr-2" />

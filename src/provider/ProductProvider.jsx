@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { ProductContext } from "../context/ProductContext.jsx";
 import { useProductReducer } from "../hooks/useProductReducer.js";
 
